@@ -1,6 +1,7 @@
 package nes;
 
 import machine6502.CPUCycleCounter;
+import machine6502.Memory;
 
 public class PPU {
     /*
@@ -14,16 +15,100 @@ public class PPU {
      * Each frame lasts 89342 (341*262) PPU cycles
      *  - 341 PPU cycles per scanline
      *  - 262 scanlines, including vblank
-     * 
-     * VRAM, $2003, $2004, $2007 cannot be accessed during rendering
      */
     
+    private Memory mem;
     private boolean vblankFlag;
     private CPUCycleCounter cpuCycleCounter;
     private int lastCpuCycle;
     
+    private int vramAddr;
+    private boolean vramAddrWriting;
+    
+    private static class PCR1 {
+        private int reg;
+        
+        public int getNameTable() {
+            switch (reg & 0x03) {
+            case 0: return 0x2000;
+            case 1: return 0x2400;
+            case 2: return 0x2800;
+            case 3: return 0x2C00;
+            default: throw new IllegalStateException();
+            }
+        }
+        
+        public int getVRAMIncrement() {
+            return ((reg & 0x04) != 0) ? 1:32;
+        }
+        
+        public int getSpritePatternTable() {
+            return ((reg & 0x08) != 0) ? 0x0000:0x1000;
+        }
+        
+        public int getBackgroundPatternTable() {
+            return ((reg & 0x10) != 0) ? 0x0000:0x1000;
+        }
+        
+        public boolean isSprite8x8() {
+            return (reg & 0x20) == 0;
+        }
+        
+        public boolean isNMIVBlankOn() {
+            return (reg & 0x80) != 0;
+        }
+        
+        public int getRegister() {
+            return reg;
+        }
+        
+        public void setRegister(int value) {
+            reg = value;
+        }
+    }
+    
+    private static class PCR2 {
+        private int reg;
+        
+        public boolean isColorDisplay() {
+            return (reg & 0x01) == 0;
+        }
+        
+        public boolean isBackgroundClipping() {
+            return (reg & 0x02) == 0;
+        }
+        
+        public boolean isSpriteClipping() {
+            return (reg & 0x04) == 0;
+        }
+        
+        public boolean isBackgroundVisible() {
+            return (reg & 0x08) != 0;
+        }
+        
+        public boolean isSpriteVisible() {
+            return (reg & 0x10) != 0;
+        }
+        
+        public int getFullBGColor() {
+            return (reg & 0xE0) >> 5;
+        }
+        
+        public int getRegister() {
+            return reg;
+        }
+        
+        public void setRegister(int value) {
+            reg = value;
+        }
+    }
+    
+    private PCR1 pcr1;
+    private PCR2 pcr2;
     
     public PPU() {
+        pcr1 = new PCR1();
+        pcr2 = new PCR2();
     }
     
     public void advance() {
@@ -60,12 +145,19 @@ public class PPU {
     }
 
     public void writePPUAddr(int value) {
-        // TODO Auto-generated method stub
+        if (!vramAddrWriting) {
+            // lo byte
+            vramAddr = value;
+        } else {
+            // hi byte
+            vramAddr = (value<<8) | vramAddr;
+        }
         
+        vramAddrWriting = !vramAddrWriting;
     }
 
     public void writePPUData(int value) {
-        // TODO Auto-generated method stub
-        
+        mem.writeByte(vramAddr, value);
+        vramAddr = (vramAddr + pcr1.getVRAMIncrement()) & 0xFFFF;
     }
 }
