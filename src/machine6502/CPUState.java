@@ -80,6 +80,24 @@ public class CPUState {
                                   a, a, x, x, y, y);
         
         other = String.format("PC: %04X\nSP: %02X\n", pc, sp);
+        /* N - Negative<br>
+        * V - Overflow<br>
+        * B - Break<br>
+        * D - Decimal (unused on NES)<br>
+        * I - Interrupt-disable<br>
+        * Z - Zero<br>
+        * C - Carry
+        */
+        
+        other += "Flags: ";
+        other += isFlagSet(CPUFlags.N)?"N":"n";
+        other += isFlagSet(CPUFlags.V)?"V":"v";
+        other += isFlagSet(CPUFlags.B)?"B":"b";
+        other += isFlagSet(CPUFlags.D)?"D":"d";
+        other += isFlagSet(CPUFlags.I)?"I":"i";
+        other += isFlagSet(CPUFlags.Z)?"Z":"z";
+        other += isFlagSet(CPUFlags.C)?"C":"c";
+        other += "\n";
         
         return registers + other;
     }

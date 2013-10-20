@@ -11,6 +11,7 @@ import machine6502.ByteUtils;
 import machine6502.CPU;
 import machine6502.MemUtils;
 import machine6502.Memory;
+import memory.DebugUtil;
 import memory.Segmented;
 
 import org.junit.Before;
@@ -21,6 +22,29 @@ public class AllSuiteA {
     private static final int romReset = 0x4000;
     
     private Memory mem;
+    private CPU cpu;
+    
+
+    
+    private static final int[][] passes = {
+            {0x022A, 0x55},
+            {0xA9, 0xAA},
+            {0x71, 0xFF},
+            {0x01DD, 0x6E},
+            {0x40, 0x42},
+            {0x40, 0x33},
+            {0x30, 0x9D},
+            {0x15, 0x7F},
+            {0x42, 0xA5},
+            {0x80, 0x1F},
+            {0x30, 0xCE},
+            {0x30, 0x29},
+            {0x33, 0x42},
+            {0x21, 0x6C},
+            {0x60, 0x42},
+            
+            {0x0210, 0xFF}
+    };
     
     @Before
     public void setUp() throws IOException {
@@ -36,51 +60,55 @@ public class AllSuiteA {
             input.read(romData);
         }
         
+        Memory debugRegs = new Memory() {
+            private int testNo = 0;
+            @Override
+            public void writeByte(int addr, int value) {
+                if (addr == 0) {
+                    cpu.printDebug(System.out);
+                } else if (addr == 1) {
+                    // next test
+                    checkTest(testNo);
+                    testNo++;
+                }
+            }
+            
+            @Override
+            public int readByte(int addr) {
+                return 0;
+            }
+        };
         
         Memory vector = new memory.RAM(6);
-        
+
         segMem.addSegment(0x0000, 0x0FFF, ram);
+        segMem.addSegment(0x2000, 0x20FF, debugRegs);
         segMem.addSegment(romReset, romReset + romSize-1, new memory.ByteConstant(romData));
         segMem.addSegment(0xFFFA, 0xFFFF, vector);
         
         MemUtils.writeShort(segMem, 0xFFFC, romReset);
         
         this.mem = segMem;
+        this.cpu = new CPU(this.mem);
+        this.cpu.reset();
     }
     
-    private void assertMem(int addr, int value) {
-        assertEquals(value, mem.readByte(addr));
+    public void checkTest(int testNo) {
+        int addr, expected;
+        addr = passes[testNo][0];
+        expected = passes[testNo][1];
+        int actual = mem.readByte(addr);
+
+        System.out.printf("Test %02d: $%04X = #$%02X ", testNo, addr, expected);
+        if (expected != actual) {
+            System.out.printf(": got #$%02X", actual);
+        }
+        System.out.println();
+        assertEquals(expected, actual);
     }
 
     @Test
     public void test() {
-        CPU cpu = new CPU(this.mem);
-        cpu.reset();
         cpu.runUntilBreak();
-        
-        int[][] passes = {
-                {0x022A, 0x55},
-                {0xA9, 0xAA},
-                {0x71, 0xFF},
-                {0x01DD, 0x6E},
-                {0x40, 0x42},
-                {0x40, 0x33},
-                {0x30, 0x9D},
-                {0x15, 0x7F},
-                {0x42, 0xA5},
-                {0x80, 0x1F},
-                {0x30, 0xCE},
-                {0x30, 0x29},
-                {0x33, 0x42},
-                {0x21, 0x6C},
-                {0x60, 0x42},
-                
-                {0x0210, 0xFF}
-        };
-        
-        for (int[] a: passes) {
-            assertMem(a[0], a[1]);
-            System.out.printf("$%04X = #$%02X\n", a[0], a[1]);
-        }
     }
 }

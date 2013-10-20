@@ -112,25 +112,10 @@ public class CPU {
         }
     }
     
-    public void printMemoryPage(PrintStream out, int page) {
-        for (int y = 0; y < 0x10; y++) {
-            for (int x = 0; x < 0x10; x++) {
-                int addr = (page<<8) | (y<<4) | x;
-                int value = mem.readByte(addr);
-                out.printf("%02X ", value);
-            }
-            out.println();
-        }
-    }
-    
     public void printDebug(PrintStream out) {
         out.println(regdata);
         
-        out.println("Zero Page:");
-        printMemoryPage(out, 0);
-        
-        out.println("Stack Page:");
-        printMemoryPage(out, 1);
+        memory.DebugUtil.printDebug(out, mem);
     }
     
     private boolean checkAndRunInterrupts() {
