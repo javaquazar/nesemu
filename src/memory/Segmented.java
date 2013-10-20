@@ -29,6 +29,11 @@ public class Segmented implements Memory {
         this.segments = new ArrayList<>();
     }
     
+    /**
+     * @param lower The first addressable byte
+     * @param upper The last addressable byte
+     * @param mem
+     */
     public void addSegment(int lower, int upper, Memory mem) {
         segments.add(new Segment(lower, upper, mem));
     }

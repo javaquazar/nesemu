@@ -8,7 +8,11 @@ public class RAM implements Memory {
     public RAM(int size) {
         this.ram = new int[size];
     }
-
+    
+    public RAM(int[] ram) {
+        this.ram = ram;
+    }
+    
     @Override
     public int readByte(int addr) {
         return ram[addr];

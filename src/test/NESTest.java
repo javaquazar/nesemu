@@ -5,9 +5,9 @@ import java.io.IOException;
 
 import nes.Joypad;
 import nes.GameRunnable;
-import nes.PPU;
 import nes.Registers2A03Memory;
 import nes.RegistersPPUMemory;
+import nes.ppu.PPU;
 import machine6502.CPU;
 import machine6502.CPUState;
 import memory.Mirrored;

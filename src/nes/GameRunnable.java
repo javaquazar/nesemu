@@ -1,8 +1,10 @@
 package nes;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import nes.ppu.PPU;
 import machine6502.CPU;
 import machine6502.CPUCycleCounter;
 
@@ -33,6 +35,8 @@ public class GameRunnable implements Runnable {
         };
         
         PPU ppu = new PPU();
+        
+        ppu.setPatternTable(rom.getCHR(0));
 
         memory.Segmented mem = new memory.Segmented();
         memory.RAM ram = new memory.RAM(0x800);
@@ -54,8 +58,10 @@ public class GameRunnable implements Runnable {
         CPU cpu = new CPU(new memory.Debug(mem));
         cpu.reset();
         
+        int frame = 0;
+        
         try {
-            while (true) {
+            while (frame < 60*5) {
                 CPUCycleCounter cycleCounter = new CPUCycleCounter();
                 
                 ppu.startRenderingFrame(cycleCounter);
@@ -70,16 +76,27 @@ public class GameRunnable implements Runnable {
                 
                 // notify and update the emulator ui
                 
-                Thread.sleep(1000/60);
+                //Thread.sleep(1000/60);
+                Thread.sleep(0);
                 
                 // Go until VBlank is done
                 cpu.runForXCycles(PPU_VBLANK_CYCLES*5/15);
                 
                 // leaving VBlank
                 ppu.leaveVBlank();
+                
+                frame++;
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
+        }
+        
+        try {
+            FileOutputStream f = new FileOutputStream("vramdump.bin");
+            ppu.dumpVRAM(f);
+            f.close();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }

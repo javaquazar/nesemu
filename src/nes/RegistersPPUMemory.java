@@ -1,5 +1,6 @@
 package nes;
 
+import nes.ppu.PPU;
 import machine6502.Memory;
 
 public class RegistersPPUMemory implements Memory {
@@ -28,7 +29,7 @@ public class RegistersPPUMemory implements Memory {
         case OAMDATA:
             break;
         case PPUDATA:
-            break;
+            return ppu.readPPUData();
         }
         
         assert addr <= PPUDATA;
@@ -37,17 +38,21 @@ public class RegistersPPUMemory implements Memory {
 
     @Override
     public void writeByte(int addr, int value) {
-        System.out.printf("PPU write: %04X (%02X)\n", addr+0x2000, value);
+        //System.out.printf("PPU write: %04X (%02X)\n", addr+0x2000, value);
+        
         switch (addr) {
         case PPUCTRL:
+            ppu.writePCR1(value);
             break;
         case PPUMASK:
+            ppu.writePCR2(value);
             break;
         case OAMADDR:
             break;
         case OAMDATA:
             break;
         case PPUSCROLL:
+            ppu.writePPUScroll(value);
             break;
         case PPUADDR:
             ppu.writePPUAddr(value);

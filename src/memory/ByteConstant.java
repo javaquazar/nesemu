@@ -2,11 +2,11 @@ package memory;
 
 import machine6502.Memory;
 
-public class Constant implements Memory {
+public class ByteConstant implements Memory {
     private byte[] memory;
 
-    public Constant(byte[] prg_rom) {
-        this.memory = prg_rom;
+    public ByteConstant(byte[] arr) {
+        this.memory = arr;
     }
 
     @Override

@@ -73,6 +73,11 @@ public class MemUtils {
         hi_addr = ((addr&0xFF) == 0xFF) ? (addr&0xFF00):(addr+1);
         return mem.readByte(lo_addr) | (mem.readByte(hi_addr)<<8);
     }
+    
+    public static void writeShort(Memory mem, int addr, int val) {
+        mem.writeByte(addr, val & 0xFF);
+        mem.writeByte(addr+1, val>>8);
+    }
 
     public static void writeByteZP(Memory mem, int addr, int offset, int val) {
         int new_addr = (addr + offset) % 0x100;

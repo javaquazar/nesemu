@@ -52,10 +52,10 @@ public class ROM {
     }
     
     public Memory getPRG(int bank) {
-        return new memory.Constant(prg_rom[bank]);
+        return new memory.ByteConstant(prg_rom[bank]);
     }
     
     public Memory getCHR(int bank) {
-        return new memory.Constant(chr_rom[bank]);
+        return new memory.ByteConstant(chr_rom[bank]);
     }
 }
