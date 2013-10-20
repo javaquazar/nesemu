@@ -568,7 +568,6 @@ test06:
 ; expected result: $15 = 0x7F
 test07:
 	STA $2001
-	STA $2000
 	; prepare memory	
 	LDA #$00
 	STA $34
@@ -632,7 +631,7 @@ bne3:
 	STA $43
 	LDX $43
 	ORA #$24
-	CMP ($40,X)
+	CMP ($40,X)		; $9D19
 	BEQ beq4 ; not taken
 	ORA #$7F
 beq4:

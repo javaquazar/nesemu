@@ -13,6 +13,7 @@ import machine6502.MemUtils;
 import machine6502.Memory;
 import memory.DebugUtil;
 import memory.Segmented;
+import memory.Zero;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -81,9 +82,10 @@ public class AllSuiteA {
         
         Memory vector = new memory.RAM(6);
 
-        segMem.addSegment(0x0000, 0x0FFF, ram);
-        segMem.addSegment(0x2000, 0x20FF, debugRegs);
+        segMem.addSegment(0x0000, 0x1FFF, ram);
+        segMem.addSegment(0x2000, romReset-1, debugRegs);
         segMem.addSegment(romReset, romReset + romSize-1, new memory.ByteConstant(romData));
+        segMem.addSegment(romReset + romSize, 0xFFF9, new memory.Zero());
         segMem.addSegment(0xFFFA, 0xFFFF, vector);
         
         MemUtils.writeShort(segMem, 0xFFFC, romReset);
