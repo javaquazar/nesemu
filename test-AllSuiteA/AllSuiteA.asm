@@ -102,6 +102,7 @@ test00pass:
 	
 ; expected result: $A9 = 0xAA
 test01:
+	STA $2001
 	; imm
 	LDA #85
 	AND #83
@@ -239,6 +240,7 @@ test01:
 	
 ; expected result: $71 = 0xFF
 test02:
+	STA $2001
 	LDA #$FF
 	LDX #$00
 	
@@ -248,39 +250,56 @@ test02:
 	LDA $90
 	LDX $90
 	
+	; A, X, $90 = 1
+	
 	STA $90,X
 	INC $90,X
 	LDA $90,X
 	LDX $91
+	
+	; A, X, $91 = 2
 	
 	STA $0190,X
 	INC $0192
 	LDA $0190,X
 	LDX $0192
 	
+	; A, X, $0192 = 3
+	
 	STA $0190,X
 	INC $0190,X
 	LDA $0190,X
 	LDX $0193
+	
+	; A, X, $0193 = 4
 	
 	STA $0170,X
 	DEC $0170,X
 	LDA $0170,X
 	LDX $0174
 	
+	; A, X, $0174 = 3
+	
 	STA $0170,X
 	DEC $0173
 	LDA $0170,X
 	LDX $0173
+	
+	; A, X, $0173 = 2
 
 	STA $70,X
 	DEC $70,X
 	LDA $70,X
 	LDX $72
 	
+	; A, X, $72 = 1
+	
 	STA $70,X
 	DEC $71
 	DEC $71
+	
+	; A, X = 1
+	; $71 = FF
 	
 ; CHECK test02
 	LDA $71
@@ -293,6 +312,7 @@ test02:
 	
 ; expected result: $01DD = 0x6E
 test03:
+	STA $2001
 	LDA #$4B
 	LSR
 	ASL
@@ -374,9 +394,10 @@ test03:
 	
 ; expected result: $40 = 0x42
 test04:
-	LDA #$E8 ;originally:#$7C
+	STA $2001
+	LDA #<final
 	STA $20
-	LDA #$42 ;originally:#$02
+	LDA #>final
 	STA $21
 	LDA #$00
 	ORA #$03
@@ -407,6 +428,7 @@ final:
 
 ; expected result: $40 = 0x33
 test05:
+	STA $2001
 	LDA #$35
 	
 	TAX
@@ -441,9 +463,15 @@ test05:
 	
 ; expected result: $30 = 9D
 test06:
+	STA $2001
+	
+	; A,X,Y = 33
+	; Flags: nvbdiZC
 
 ; RESET TO CARRY FLAG = 0
 	ROL
+	; A = 67
+	; Flags: nvbdizc
 
 	LDA #$6A
 	STA $50
@@ -454,10 +482,16 @@ test06:
 	LDA #$A2
 	STA $61
 	
+	; A = A2, Flags: Nvbdizc
+	
 	LDA #$FF
 	ADC #$FF
+	; A = FE, Flags: NvbdizC
 	ADC #$FF
+	; A = FE, Flags: NvbdizC
 	SBC #$AE
+	
+	; A = 50, Flags: nvbdizC
 	
 	STA $40
 	LDX $40
@@ -533,6 +567,8 @@ test06:
 	
 ; expected result: $15 = 0x7F
 test07:
+	STA $2001
+	STA $2000
 	; prepare memory	
 	LDA #$00
 	STA $34
@@ -621,6 +657,7 @@ bne4:
 
 ; expected result: $42 = 0xA5
 test08:
+	STA $2001
 	; prepare memory
 	LDA #$A5
 	STA $20
@@ -689,6 +726,7 @@ b9:
 
 ; expected result: $80 = 0x1F
 test09:
+	STA $2001
 	; prepare memory
 	LDA #$54
 	STA $32
@@ -772,6 +810,7 @@ bcs2:
 	
 ; expected result: $30 = 0xCE
 test10:
+	STA $2001
 
 ; RESET TO CARRY = 0 & OVERFLOW = 0
 	ADC #$00
@@ -807,6 +846,7 @@ t10bvc1:
 	
 ; expected result: $30 = 0x29
 test11:
+	STA $2001
 
 ; RESET TO CARRY = 0 & ZERO = 0
 	ADC #$01
@@ -834,6 +874,7 @@ test11:
 	
 ; expected result: $33 = 0x42
 test12:
+	STA $2001
 	CLC
 	LDA #$42
 	BCC runstuff
@@ -862,6 +903,7 @@ t12end:
 ; expected result: $21 = 0x6C (simulator)
 ;                  $21 = 0x0C (ours)
 test13:
+	STA $2001
 
 ; RESET TO CARRY = 0 & ZERO = 0
 	ADC #$01
@@ -889,6 +931,7 @@ test13:
 
 ; expect result: $60 = 0x42
 test14:
+	STA $2001
 	; !!! NOTICE: BRK doesn't work in this
 	; simulator, so commented instructions 
 	; are what should be executed...
@@ -921,5 +964,6 @@ suiteafinal:
 	BNE theend
 	INC $0210
 theend:
+	STA $2001
 	BRK
 ;	JMP theend

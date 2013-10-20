@@ -71,7 +71,7 @@ public class LogicalInstructions {
                 int old_value = rw.read();
                 int value = regdata.a - old_value;
                 
-                if (regdata.isFlagSet(CPUFlags.C)) {
+                if (!regdata.isFlagSet(CPUFlags.C)) {
                     value--;
                 }
                 
