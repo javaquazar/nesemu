@@ -1,0 +1,924 @@
+                                	.ORG $4000
+04000                           start:
+04000                           ; EXPECTED FINAL RESULTS: $0210 = FF
+04000                           ; (any other number will be the 
+04000                           ;  test that failed)
+04000                           
+04000                           ; initialize:
+04000 A9 00                     	LDA #$00
+04002 8D 10 02                  	STA $0210
+04005                           	; store each test's expected
+04005 A9 55                     	LDA #$55
+04007 8D 00 02                  	STA $0200
+0400A A9 AA                     	LDA #$AA
+0400C 8D 01 02                  	STA $0201
+0400F A9 FF                     	LDA #$FF
+04011 8D 02 02                  	STA $0202
+04014 A9 6E                     	LDA #$6E
+04016 8D 03 02                  	STA $0203
+04019 A9 42                     	LDA #$42
+0401B 8D 04 02                  	STA $0204
+0401E A9 33                     	LDA #$33
+04020 8D 05 02                  	STA $0205
+04023 A9 9D                     	LDA #$9D
+04025 8D 06 02                  	STA $0206
+04028 A9 7F                     	LDA #$7F
+0402A 8D 07 02                  	STA $0207
+0402D A9 A5                     	LDA #$A5
+0402F 8D 08 02                  	STA $0208
+04032 A9 1F                     	LDA #$1F
+04034 8D 09 02                  	STA $0209
+04037 A9 CE                     	LDA #$CE
+04039 8D 0A 02                  	STA $020A
+0403C A9 29                     	LDA #$29
+0403E 8D 0B 02                  	STA $020B
+04041 A9 42                     	LDA #$42
+04043 8D 0C 02                  	STA $020C
+04046 A9 6C                     	LDA #$6C
+04048 8D 0D 02                  	STA $020D
+0404B A9 42                     	LDA #$42
+0404D 8D 0E 02                  	STA $020E
+04050                           	
+04050                           
+04050                           ; expected result: $022A = 0x55
+04050                           test00:
+04050 A9 55                        	LDA #85
+04052 A2 2A                     	LDX #42
+04054 A0 73                     	LDY #115
+04056 85 81                     	STA $81
+04058 A9 01                     	LDA #$01
+0405A 85 61                     	STA $61
+0405C A9 7E                     	LDA #$7E
+0405E A5 81                     	LDA $81
+04060 8D 10 09                  	STA $0910
+04063 A9 7E                     	LDA #$7E
+04065 AD 10 09                  	LDA $0910
+04068 95 56                     	STA $56,X
+0406A A9 7E                     	LDA #$7E
+0406C B5 56                     	LDA $56,X
+0406E 84 60                     	STY $60
+04070 91 60                     	STA ($60),Y
+04072 A9 7E                     	LDA #$7E
+04074 B1 60                     	LDA ($60),Y
+04076 9D FF 07                  	STA $07ff,X
+04079 A9 7E                     	LDA #$7E
+0407B BD FF 07                  	LDA $07ff,X
+0407E 99 FF 07                  	STA $07ff,Y
+04081 A9 7E                     	LDA #$7E
+04083 B9 FF 07                  	LDA $07ff,Y
+04086 81 36                     	STA ($36,X)
+04088 A9 7E                     	LDA #$7E
+0408A A1 36                     	LDA ($36,X)
+0408C 86 50                     	STX $50
+0408E A6 60                     	LDX $60
+04090 A4 50                     	LDY $50
+04092 8E 13 09                  	STX $0913
+04095 A2 22                     	LDX #$22
+04097 AE 13 09                  	LDX $0913
+0409A 8C 14 09                  	STY $0914
+0409D A0 99                     	LDY #$99
+0409F AC 14 09                  	LDY $0914
+040A2 94 2D                     	STY $2D,X
+040A4 96 77                     	STX $77,Y
+040A6 A0 99                     	LDY #$99
+040A8 B4 2D                     	LDY $2D,X
+040AA A2 22                     	LDX #$22
+040AC B6 77                     	LDX $77,Y
+040AE A0 99                     	LDY #$99
+040B0 BC A0 08                  	LDY $08A0,X
+040B3 A2 22                     	LDX #$22
+040B5 BE A1 08                  	LDX $08A1,Y
+040B8 9D 00 02                  	STA $0200,X
+040BB                           	
+040BB                           ; CHECK test00:
+040BB AD 2A 02                  	LDA $022A
+040BE CD 00 02                  	CMP $0200
+040C1 F0 03                     	BEQ test00pass
+040C3 4C C0 45                  	JMP theend
+040C6                           test00pass:
+040C6 A9 FE                     	LDA #$FE
+040C8 8D 10 02                  	STA $0210
+040CB                           	
+040CB                           	
+040CB                           ; expected result: $A9 = 0xAA
+040CB                           test01:
+040CB                           	; imm
+040CB A9 55                     	LDA #85
+040CD 29 53                     	AND #83
+040CF 09 38                     	ORA #56
+040D1 49 11                     	EOR #17
+040D3                           	
+040D3                           	; zpg
+040D3 85 99                     	STA $99
+040D5 A9 B9                     	LDA #185
+040D7 85 10                     	STA $10
+040D9 A9 E7                     	LDA #231
+040DB 85 11                     	STA $11
+040DD A9 39                     	LDA #57
+040DF 85 12                     	STA $12
+040E1 A5 99                     	LDA $99
+040E3 25 10                     	AND $10
+040E5 05 11                     	ORA $11
+040E7 45 12                     	EOR $12
+040E9                           	
+040E9                           	; zpx
+040E9 A2 10                     	LDX #16
+040EB 85 99                     	STA $99
+040ED A9 BC                     	LDA #188
+040EF 85 20                     	STA $20
+040F1 A9 31                     	LDA #49
+040F3 85 21                     	STA $21
+040F5 A9 17                     	LDA #23
+040F7 85 22                     	STA $22
+040F9 A5 99                     	LDA $99
+040FB 35 10                     	AND $10,X
+040FD 15 11                     	ORA $11,X
+040FF 55 12                     	EOR $12,X
+04101                           	
+04101                           	; abs
+04101 85 99                     	STA $99
+04103 A9 6F                     	LDA #111
+04105 8D 10 01                  	STA $0110
+04108 A9 3C                     	LDA #60
+0410A 8D 11 01                  	STA $0111
+0410D A9 27                     	LDA #39
+0410F 8D 12 01                  	STA $0112
+04112 A5 99                     	LDA $99
+04114 2D 10 01                  	AND $0110
+04117 0D 11 01                  	ORA $0111
+0411A 4D 12 01                  	EOR $0112
+0411D                           	
+0411D                           	; abx
+0411D 85 99                     	STA $99
+0411F A9 8A                     	LDA #138
+04121 8D 20 01                  	STA $0120
+04124 A9 47                     	LDA #71
+04126 8D 21 01                  	STA $0121
+04129 A9 8F                     	LDA #143
+0412B 8D 22 01                  	STA $0122
+0412E A5 99                     	LDA $99
+04130 3D 10 01                  	AND $0110,X
+04133 1D 11 01                  	ORA $0111,X
+04136 5D 12 01                  	EOR $0112,X
+04139                           	
+04139                           	; aby
+04139 A0 20                     	LDY #32
+0413B 85 99                     	STA $99
+0413D A9 73                     	LDA #115
+0413F 8D 30 01                  	STA $0130
+04142 A9 2A                     	LDA #42
+04144 8D 31 01                  	STA $0131
+04147 A9 F1                     	LDA #241
+04149 8D 32 01                  	STA $0132
+0414C A5 99                     	LDA $99
+0414E 39 10 01                  	AND $0110,Y
+04151 19 11 01                  	ORA $0111,Y
+04154 59 12 01                  	EOR $0112,Y
+04157                           	
+04157                           	; idx
+04157 85 99                     	STA $99
+04159 A9 70                     	LDA #112
+0415B 85 30                     	STA $30
+0415D A9 01                     	LDA #$01
+0415F 85 31                     	STA $31
+04161 A9 71                     	LDA #113
+04163 85 32                     	STA $32
+04165 A9 01                     	LDA #$01
+04167 85 33                     	STA $33
+04169 A9 72                     	LDA #114
+0416B 85 34                     	STA $34
+0416D A9 01                             LDA #$01
+0416F 85 35                             STA $35
+04171 A9 C5                     	LDA #197
+04173 8D 70 01                  	STA $0170
+04176 A9 7C                     	LDA #124
+04178 8D 71 01                  	STA $0171
+0417B A9 A1                     	LDA #161
+0417D 8D 72 01                  	STA $0172
+04180 A5 99                     	LDA $99
+04182 21 20                     	AND ($20,X)
+04184 01 22                     	ORA ($22,X)
+04186 41 24                     	EOR ($24,X)
+04188                           	
+04188                           	; idy
+04188 85 99                     	STA $99
+0418A A9 60                     	LDA #96
+0418C 85 40                     	STA $40
+0418E A9 01                     	LDA #$01
+04190 85 41                     	STA $41
+04192 A9 61                     	LDA #97
+04194 85 42                     	STA $42
+04196 A9 01                     	LDA #$01
+04198 85 43                     	STA $43
+0419A A9 62                     	LDA #98
+0419C 85 44                     	STA $44
+0419E A9 01                     	LDA #$01
+041A0 85 45                     	STA $45
+041A2 A9 37                     	LDA #55
+041A4 8D 50 02                  	STA $0250
+041A7 A9 23                     	LDA #35
+041A9 8D 51 02                  	STA $0251
+041AC A9 9D                     	LDA #157
+041AE 8D 52 02                  	STA $0252
+041B1 A5 99                     	LDA $99
+041B3 A0 F0                     	LDY #$F0
+041B5 31 40                     	AND ($40),Y
+041B7 11 42                     	ORA ($42),Y
+041B9 51 44                     	EOR ($44),Y
+041BB                           	
+041BB 85 A9                     	STA $A9
+041BD                           	
+041BD                           ; CHECK test01
+041BD A5 A9                     	LDA $A9
+041BF CD 01 02                  	CMP $0201
+041C2 F0 08                     	BEQ test02
+041C4 A9 01                     	LDA #$01
+041C6 8D 10 02                  	STA $0210
+041C9 4C C0 45                  	JMP theend
+041CC                           	
+041CC                           	
+041CC                           ; expected result: $71 = 0xFF
+041CC                           test02:
+041CC A9 FF                     	LDA #$FF
+041CE A2 00                     	LDX #$00
+041D0                           	
+041D0 85 90                     	STA $90
+041D2 E6 90                     	INC $90
+041D4 E6 90                     	INC $90
+041D6 A5 90                     	LDA $90
+041D8 A6 90                     	LDX $90
+041DA                           	
+041DA 95 90                     	STA $90,X
+041DC F6 90                     	INC $90,X
+041DE B5 90                     	LDA $90,X
+041E0 A6 91                     	LDX $91
+041E2                           	
+041E2 9D 90 01                  	STA $0190,X
+041E5 EE 92 01                  	INC $0192
+041E8 BD 90 01                  	LDA $0190,X
+041EB AE 92 01                  	LDX $0192
+041EE                           	
+041EE 9D 90 01                  	STA $0190,X
+041F1 FE 90 01                  	INC $0190,X
+041F4 BD 90 01                  	LDA $0190,X
+041F7 AE 93 01                  	LDX $0193
+041FA                           	
+041FA 9D 70 01                  	STA $0170,X
+041FD DE 70 01                  	DEC $0170,X
+04200 BD 70 01                  	LDA $0170,X
+04203 AE 74 01                  	LDX $0174
+04206                           	
+04206 9D 70 01                  	STA $0170,X
+04209 CE 73 01                  	DEC $0173
+0420C BD 70 01                  	LDA $0170,X
+0420F AE 73 01                  	LDX $0173
+04212                           
+04212 95 70                     	STA $70,X
+04214 D6 70                     	DEC $70,X
+04216 B5 70                     	LDA $70,X
+04218 A6 72                     	LDX $72
+0421A                           	
+0421A 95 70                     	STA $70,X
+0421C C6 71                     	DEC $71
+0421E C6 71                     	DEC $71
+04220                           	
+04220                           ; CHECK test02
+04220 A5 71                     	LDA $71
+04222 CD 02 02                  	CMP $0202
+04225 F0 08                     	BEQ test03
+04227 A9 02                     	LDA #$02
+04229 8D 10 02                  	STA $0210
+0422C 4C C0 45                  	JMP theend
+0422F                           	
+0422F                           	
+0422F                           ; expected result: $01DD = 0x6E
+0422F                           test03:
+0422F A9 4B                     	LDA #$4B
+04231 4A                        	LSR
+04232 0A                        	ASL
+04233                           	
+04233 85 50                     	STA $50
+04235 06 50                     	ASL $50
+04237 06 50                     	ASL $50
+04239 46 50                     	LSR $50
+0423B A5 50                     	LDA $50
+0423D                           	
+0423D A6 50                     	LDX $50
+0423F 09 C9                     	ORA #$C9
+04241 85 60                     	STA $60
+04243 16 4C                     	ASL $4C,X
+04245 56 4C                     	LSR $4C,X
+04247 56 4C                     	LSR $4C,X
+04249 B5 4C                     	LDA $4C,X
+0424B                           	
+0424B A6 60                     	LDX $60
+0424D 09 41                     	ORA #$41
+0424F 8D 2E 01                  	STA $012E
+04252 5E 00 01                  	LSR $0100,X
+04255 5E 00 01                  	LSR $0100,X
+04258 1E 00 01                  	ASL $0100,X
+0425B BD 00 01                  	LDA $0100,X
+0425E                           	
+0425E AE 2E 01                  	LDX $012E
+04261 09 81                     	ORA #$81
+04263 9D 00 01                  	STA $0100,X
+04266 4E 36 01                  	LSR $0136
+04269 4E 36 01                  	LSR $0136
+0426C 0E 36 01                  	ASL $0136
+0426F BD 00 01                  	LDA $0100,X
+04272                           	
+04272                           	; rol & ror
+04272                           	
+04272 2A                        	ROL
+04273 2A                        	ROL
+04274 6A                        	ROR
+04275 85 70                     	STA $70
+04277                           	
+04277 A6 70                     	LDX $70
+04279 09 03                     	ORA #$03
+0427B 95 0C                     	STA $0C,X
+0427D 26 C0                     	ROL $C0
+0427F 66 C0                     	ROR $C0
+04281 66 C0                     	ROR $C0
+04283 B5 0C                     	LDA $0C,X
+04285                           	
+04285 A6 C0                     	LDX $C0
+04287 85 D0                     	STA $D0
+04289 36 75                     	ROL $75,X
+0428B 36 75                     	ROL $75,X
+0428D 76 75                     	ROR $75,X
+0428F A5 D0                     	LDA $D0
+04291                           	
+04291 A6 D0                     	LDX $D0
+04293 9D 00 01                  	STA $0100,X
+04296 2E B7 01                  	ROL $01B7
+04299 2E B7 01                  	ROL $01B7
+0429C 2E B7 01                  	ROL $01B7
+0429F 6E B7 01                  	ROR $01B7
+042A2 BD 00 01                  	LDA $0100,X
+042A5                           	
+042A5 AE B7 01                  	LDX $01B7
+042A8 8D DD 01                  	STA $01DD
+042AB 3E 00 01                  	ROL $0100,X
+042AE 7E 00 01                  	ROR $0100,X
+042B1 7E 00 01                  	ROR $0100,X
+042B4                           	
+042B4                           ; CHECK test03
+042B4 AD DD 01                  	LDA $01DD
+042B7 CD 03 02                  	CMP $0203
+042BA F0 08                     	BEQ test04
+042BC A9 03                     	LDA #$03
+042BE 8D 10 02                  	STA $0210
+042C1 4C C0 45                  	JMP theend
+042C4                           	
+042C4                           	
+042C4                           ; expected result: $40 = 0x42
+042C4                           test04:
+042C4 A9 E8                     	LDA #$E8 ;originally:#$7C
+042C6 85 20                     	STA $20
+042C8 A9 42                     	LDA #$42 ;originally:#$02
+042CA 85 21                     	STA $21
+042CC A9 00                     	LDA #$00
+042CE 09 03                     	ORA #$03
+042D0 4C D5 42                  	JMP jump1
+042D3 09 FF                     	ORA #$FF ; not done
+042D5                           jump1:
+042D5 09 30                     	ORA #$30
+042D7 20 E1 42                  	JSR subr
+042DA 09 42                     	ORA #$42
+042DC 6C 20 00                  	JMP ($0020)
+042DF 09 FF                     	ORA #$FF ; not done
+042E1                           subr:
+042E1 85 30                     	STA $30
+042E3 A6 30                     	LDX $30
+042E5 A9 00                     	LDA #$00
+042E7 60                        	RTS
+042E8                           final:
+042E8 95 0D                     	STA $0D,X
+042EA                           	
+042EA                           ; CHECK test04
+042EA A5 40                     	LDA $40
+042EC CD 04 02                  	CMP $0204
+042EF F0 08                     	BEQ test05
+042F1 A9 04                     	LDA #$04
+042F3 8D 10 02                  	STA $0210
+042F6 4C C0 45                  	JMP theend
+042F9                           	
+042F9                           
+042F9                           ; expected result: $40 = 0x33
+042F9                           test05:
+042F9 A9 35                     	LDA #$35
+042FB                           	
+042FB AA                        	TAX
+042FC CA                        	DEX
+042FD CA                        	DEX
+042FE E8                        	INX
+042FF 8A                        	TXA
+04300                           	
+04300 A8                        	TAY
+04301 88                        	DEY
+04302 88                        	DEY
+04303 C8                        	INY
+04304 98                        	TYA
+04305                           	
+04305 AA                        	TAX
+04306 A9 20                     	LDA #$20
+04308 9A                        	TXS
+04309 A2 10                     	LDX #$10
+0430B BA                        	TSX
+0430C 8A                        	TXA
+0430D                           	
+0430D 85 40                     	STA $40
+0430F                           	
+0430F                           ; CHECK test05
+0430F A5 40                     	LDA $40
+04311 CD 05 02                  	CMP $0205
+04314 F0 08                     	BEQ test06
+04316 A9 05                     	LDA #$05
+04318 8D 10 02                  	STA $0210
+0431B 4C C0 45                  	JMP theend
+0431E                           	
+0431E                           	
+0431E                           ; expected result: $30 = 9D
+0431E                           test06:
+0431E                           
+0431E                           ; RESET TO CARRY FLAG = 0
+0431E 2A                        	ROL
+0431F                           
+0431F A9 6A                     	LDA #$6A
+04321 85 50                     	STA $50
+04323 A9 6B                     	LDA #$6B
+04325 85 51                     	STA $51
+04327 A9 A1                     	LDA #$A1
+04329 85 60                     	STA $60
+0432B A9 A2                     	LDA #$A2
+0432D 85 61                     	STA $61
+0432F                           	
+0432F A9 FF                     	LDA #$FF
+04331 69 FF                     	ADC #$FF
+04333 69 FF                     	ADC #$FF
+04335 E9 AE                     	SBC #$AE
+04337                           	
+04337 85 40                     	STA $40
+04339 A6 40                     	LDX $40
+0433B 75 00                     	ADC $00,X
+0433D F5 01                     	SBC $01,X
+0433F                           		
+0433F 65 60                     	ADC $60
+04341 E5 61                     	SBC $61
+04343                           	
+04343 8D 20 01                  	STA $0120
+04346 A9 4D                     	LDA #$4D
+04348 8D 21 01                  	STA $0121
+0434B A9 23                     	LDA #$23
+0434D 6D 20 01                  	ADC $0120
+04350 ED 21 01                  	SBC $0121
+04353                           	
+04353 85 F0                     	STA $F0
+04355 A6 F0                     	LDX $F0
+04357 A9 64                     	LDA #$64
+04359 8D 24 01                  	STA $0124
+0435C A9 62                     	LDA #$62
+0435E 8D 25 01                  	STA $0125
+04361 A9 26                     	LDA #$26
+04363 7D 00 01                  	ADC $0100,X
+04366 FD 01 01                  	SBC $0101,X
+04369                           
+04369 85 F1                     	STA $F1
+0436B A4 F1                     	LDY $F1
+0436D A9 E5                     	LDA #$E5
+0436F 8D 28 01                  	STA $0128
+04372 A9 E9                     	LDA #$E9
+04374 8D 29 01                  	STA $0129
+04377 A9 34                     	LDA #$34
+04379 79 00 01                  	ADC $0100,Y
+0437C F9 01 01                  	SBC $0101,Y
+0437F                           	
+0437F 85 F2                     	STA $F2
+04381 A6 F2                     	LDX $F2
+04383 A9 20                     	LDA #$20
+04385 85 70                     	STA $70
+04387 A9 01                     	LDA #$01
+04389 85 71                     	STA $71
+0438B A9 24                     	LDA #$24
+0438D 85 72                     	STA $72
+0438F A9 01                     	LDA #$01
+04391 85 73                     	STA $73
+04393 61 41                     	ADC ($41,X)
+04395 E1 3F                     	SBC ($3F,X)
+04397                           	
+04397 85 F3                     	STA $F3
+04399 A4 F3                     	LDY $F3
+0439B A9 DA                     	LDA #$DA
+0439D 85 80                     	STA $80
+0439F A9 00                     	LDA #$00
+043A1 85 81                     	STA $81
+043A3 A9 DC                     	LDA #$DC
+043A5 85 82                     	STA $82
+043A7 A9 00                     	LDA #$00
+043A9 85 83                     	STA $83
+043AB A9 AA                     	LDA #$AA
+043AD 71 80                     	ADC ($80),Y
+043AF F1 82                     	SBC ($82),Y
+043B1 85 30                     	STA $30
+043B3                           	
+043B3                           ; CHECK test06
+043B3 A5 30                     	LDA $30
+043B5 CD 06 02                  	CMP $0206
+043B8 F0 08                     	BEQ test07
+043BA A9 06                     	LDA #$06
+043BC 8D 10 02                  	STA $0210
+043BF 4C C0 45                  	JMP theend
+043C2                           	
+043C2                           	
+043C2                           ; expected result: $15 = 0x7F
+043C2                           test07:
+043C2                           	; prepare memory	
+043C2 A9 00                     	LDA #$00
+043C4 85 34                     	STA $34
+043C6 A9 FF                     	LDA #$FF
+043C8 8D 30 01                  	STA $0130
+043CB A9 99                     	LDA #$99
+043CD 8D 9D 01                  	STA $019D
+043D0 A9 DB                     	LDA #$DB
+043D2 8D 99 01                  	STA $0199
+043D5 A9 2F                     	LDA #$2F
+043D7 85 32                     	STA $32
+043D9 A9 32                     	LDA #$32
+043DB 85 4F                     	STA $4F
+043DD A9 30                     	LDA #$30
+043DF 85 33                     	STA $33
+043E1 A9 70                     	LDA #$70
+043E3 85 AF                     	STA $AF
+043E5 A9 18                     	LDA #$18
+043E7 85 30                     	STA $30
+043E9                           	
+043E9                           	; imm
+043E9 C9 18                     	CMP #$18
+043EB F0 02                     	BEQ beq1 ; taken
+043ED 29 00                     	AND #$00 ; not done
+043EF                           beq1:
+043EF                           	; zpg
+043EF 09 01                     	ORA #$01
+043F1 C5 30                     	CMP $30
+043F3 D0 02                     	BNE bne1 ; taken
+043F5 29 00                     	AND #$00 ; not done
+043F7                           bne1:
+043F7                           	; abs
+043F7 A2 00                     	LDX #$00
+043F9 CD 30 01                  	CMP $0130
+043FC F0 04                     	BEQ beq2 ; not taken
+043FE 85 40                     	STA $40
+04400 A6 40                     	LDX $40
+04402                           beq2:
+04402                           	; zpx
+04402 D5 27                     	CMP $27,X
+04404 D0 06                     	BNE bne2 ; not taken
+04406 09 84                     	ORA #$84
+04408 85 41                     	STA $41
+0440A A6 41                     	LDX $41
+0440C                           bne2:
+0440C                           	; abx
+0440C 29 DB                     	AND #$DB
+0440E DD 00 01                  	CMP $0100,X
+04411 F0 02                     	BEQ beq3 ; taken
+04413 29 00                     	AND #$00 ; not done
+04415                           beq3:
+04415                           	; aby
+04415 85 42                     	STA $42
+04417 A4 42                     	LDY $42
+04419 29 00                     	AND #$00
+0441B D9 00 01                  	CMP $0100,Y
+0441E D0 02                     	BNE bne3 ; taken
+04420 09 0F                     	ORA #$0F ; not done
+04422                           bne3:
+04422                           	; idx
+04422 85 43                     	STA $43
+04424 A6 43                     	LDX $43
+04426 09 24                     	ORA #$24
+04428 C1 40                     	CMP ($40,X)
+0442A F0 02                     	BEQ beq4 ; not taken
+0442C 09 7F                     	ORA #$7F
+0442E                           beq4:
+0442E                           	; idy
+0442E 85 44                     	STA $44
+04430 A4 44                     	LDY $44 
+04432 49 0F                     	EOR #$0F
+04434 D1 33                     	CMP ($33),Y
+04436 D0 04                     	BNE bne4 ; not taken
+04438 A5 44                     	LDA $44
+0443A 85 15                     	STA $15
+0443C                           bne4:
+0443C                           
+0443C                           ; CHECK test07
+0443C A5 15                     	LDA $15
+0443E CD 07 02                  	CMP $0207
+04441 F0 08                     	BEQ test08
+04443 A9 07                     	LDA #$07
+04445 8D 10 02                  	STA $0210
+04448 4C C0 45                  	JMP theend
+0444B                           
+0444B                           
+0444B                           ; expected result: $42 = 0xA5
+0444B                           test08:
+0444B                           	; prepare memory
+0444B A9 A5                     	LDA #$A5
+0444D 85 20                     	STA $20
+0444F 8D 20 01                  	STA $0120
+04452 A9 5A                     	LDA #$5A
+04454 85 21                     	STA $21
+04456                           	
+04456                           	; cpx imm...
+04456 A2 A5                     	LDX #$A5
+04458 E0 A5                     	CPX #$A5
+0445A F0 02                     	BEQ b1 ; taken
+0445C A2 01                     	LDX #$01 ; not done
+0445E                           b1:
+0445E                           	; cpx zpg...
+0445E E4 20                     	CPX $20
+04460 F0 02                     	BEQ b2 ; taken
+04462 A2 02                     	LDX #$02 ; not done
+04464                           b2:
+04464                           	; cpx abs...
+04464 EC 20 01                  	CPX $0120
+04467 F0 02                     	BEQ b3 ; taken
+04469 A2 03                     	LDX #$03 ; not done
+0446B                           b3:
+0446B                           	; cpy imm...
+0446B 86 30                     	STX $30
+0446D A4 30                     	LDY $30
+0446F C0 A5                     	CPY #$A5
+04471 F0 02                     	BEQ b4 ; taken
+04473 A0 04                     	LDY #$04 ; not done
+04475                           b4:
+04475                           	; cpy zpg...
+04475 C4 20                     	CPY $20
+04477 F0 02                     	BEQ b5 ; taken
+04479 A0 05                     	LDY #$05 ; not done
+0447B                           b5:
+0447B                           	; cpy abs...
+0447B CC 20 01                  	CPY $0120
+0447E F0 02                     	BEQ b6 ; taken
+04480 A0 06                     	LDY #$06 ; not done
+04482                           b6:	
+04482                           	; bit zpg...
+04482 84 31                     	STY $31
+04484 A5 31                     	LDA $31
+04486 24 20                     	BIT $20
+04488 D0 02                     	BNE b7 ; taken
+0448A A9 07                     	LDA #$07 ; not done
+0448C                           b7:
+0448C                           	; bit abs...
+0448C 2C 20 01                  	BIT $0120
+0448F D0 02                     	BNE b8 ; taken
+04491 A9 08                     	LDA #$08 ; not done
+04493                           b8:
+04493 24 21                     	BIT $21
+04495 D0 02                     	BNE b9 ; not taken
+04497 85 42                     	STA $42	
+04499                           b9:
+04499                           
+04499                           ; CHECK test08
+04499 A5 42                     	LDA $42
+0449B CD 08 02                  	CMP $0208
+0449E F0 08                     	BEQ test09
+044A0 A9 08                     	LDA #$08
+044A2 8D 10 02                  	STA $0210
+044A5 4C C0 45                  	JMP theend
+044A8                           
+044A8                           
+044A8                           ; expected result: $80 = 0x1F
+044A8                           test09:
+044A8                           	; prepare memory
+044A8 A9 54                     	LDA #$54
+044AA 85 32                     	STA $32
+044AC A9 B3                     	LDA #$B3
+044AE 85 A1                     	STA $A1
+044B0 A9 87                     	LDA #$87
+044B2 85 43                     	STA $43
+044B4                           	
+044B4                           	; BPL
+044B4 A2 A1                     	LDX #$A1
+044B6 10 02                     	BPL bpl1 ; not taken
+044B8 A2 32                     	LDX #$32
+044BA                           bpl1:
+044BA B4 00                     	LDY $00,X
+044BC 10 04                     	BPL bpl2 ; taken
+044BE A9 05                     	LDA #$05 ; not done
+044C0 A6 A1                     	LDX $A1 ; not done
+044C2                           bpl2:
+044C2                           
+044C2                           	; BMI
+044C2 30 02                     	BMI bmi1 ; not taken
+044C4 E9 03                     	SBC #$03
+044C6                           bmi1:
+044C6 30 02                     	BMI bmi2 ; taken
+044C8 A9 41                     	LDA #$41 ; not done
+044CA                           bmi2:
+044CA                           
+044CA                           	; BVC
+044CA 49 30                     	EOR #$30
+044CC 85 32                     	STA $32
+044CE 75 00                     	ADC $00,X
+044D0 50 02                     	BVC bvc1 ; not taken
+044D2 A9 03                     	LDA #$03
+044D4                           bvc1:
+044D4 85 54                     	STA $54
+044D6 B6 00                     	LDX $00,Y
+044D8 75 51                     	ADC $51,X
+044DA 50 02                     	BVC bvc2 ; taken
+044DC A9 E5                     	LDA #$E5 ; not done
+044DE                           bvc2:
+044DE                           
+044DE                           	; BVS
+044DE 75 40                     	ADC $40,X
+044E0 70 05                     	BVS bvs1 ; not taken
+044E2 99 01 00                  	STA $0001,Y
+044E5 65 55                     	ADC $55
+044E7                           bvs1:
+044E7 70 02                     	BVS bvs2 ; taken
+044E9 A9 00                     	LDA #$00
+044EB                           bvs2:
+044EB                           
+044EB                           	; BCC
+044EB 69 F0                     	ADC #$F0
+044ED 90 04                     	BCC bcc1 ; not taken
+044EF 85 60                     	STA $60
+044F1 65 43                     	ADC $43
+044F3                           bcc1:
+044F3 90 02                     	BCC bcc2 ; taken
+044F5 A9 FF                     	LDA #$FF
+044F7                           bcc2:
+044F7                           
+044F7                           	; BCS
+044F7 65 54                     	ADC $54
+044F9 B0 04                     	BCS bcs1 ; not taken
+044FB 69 87                     	ADC #$87
+044FD A6 60                     	LDX $60
+044FF                           bcs1:	
+044FF B0 02                     	BCS bcs2 ; taken
+04501 A9 00                     	LDA #$00 ; not done
+04503                           bcs2:
+04503 95 73                     	STA $73,X
+04505                           	
+04505                           ; CHECK test09
+04505 A5 80                     	LDA $80
+04507 CD 09 02                  	CMP $0209
+0450A F0 08                     	BEQ test10
+0450C A9 09                     	LDA #$09
+0450E 8D 10 02                  	STA $0210
+04511 4C C0 45                  	JMP theend
+04514                           
+04514                           	
+04514                           ; expected result: $30 = 0xCE
+04514                           test10:
+04514                           
+04514                           ; RESET TO CARRY = 0 & OVERFLOW = 0
+04514 69 00                     	ADC #$00
+04516                           
+04516 A9 99                     	LDA #$99
+04518 69 87                     	ADC #$87
+0451A 18                        	CLC
+0451B EA                        	NOP
+0451C 90 04                     	BCC t10bcc1 ; taken
+0451E 69 60                     	ADC #$60 ; not done
+04520 69 93                     	ADC #$93 ; not done
+04522                           t10bcc1:
+04522 38                        	SEC
+04523 EA                        	NOP
+04524 90 01                     	BCC t10bcc2 ; not taken
+04526 B8                        	CLV
+04527                           t10bcc2:
+04527 50 02                     	BVC t10bvc1 ; taken
+04529 A9 00                     	LDA #$00 ; not done
+0452B                           t10bvc1: 
+0452B 69 AD                     	ADC #$AD
+0452D EA                        	NOP
+0452E 85 30                     	STA $30
+04530                           	
+04530                           ; CHECK test10
+04530 A5 30                     	LDA $30
+04532 CD 0A 02                  	CMP $020A
+04535 F0 08                     	BEQ test11
+04537 A9 0A                     	LDA #$0A
+04539 8D 10 02                  	STA $0210
+0453C 4C C0 45                  	JMP theend
+0453F                           	
+0453F                           	
+0453F                           ; expected result: $30 = 0x29
+0453F                           test11:
+0453F                           
+0453F                           ; RESET TO CARRY = 0 & ZERO = 0
+0453F 69 01                     	ADC #$01
+04541                           	
+04541 A9 27                     	LDA #$27
+04543 69 01                     	ADC #$01
+04545 38                        	SEC
+04546 08                        	PHP
+04547 18                        	CLC
+04548 28                        	PLP
+04549 69 00                     	ADC #$00
+0454B 48                        	PHA
+0454C A9 00                     	LDA #$00
+0454E 68                        	PLA
+0454F 85 30                     	STA $30
+04551                           	
+04551                           ; CHECK test11
+04551 A5 30                     	LDA $30
+04553 CD 0B 02                  	CMP $020B
+04556 F0 08                     	BEQ test12
+04558 A9 0B                     	LDA #$0B
+0455A 8D 10 02                  	STA $0210
+0455D 4C C0 45                  	JMP theend
+04560                           	
+04560                           	
+04560                           ; expected result: $33 = 0x42
+04560                           test12:
+04560 18                        	CLC
+04561 A9 42                     	LDA #$42
+04563 90 04                     	BCC runstuff
+04565 85 33                     	STA $33
+04567 B0 0A                     	BCS t12end
+04569                           runstuff:
+04569 A9 45                     	LDA #$45
+0456B 48                        	PHA
+0456C A9 61                     	LDA #$61
+0456E 48                        	PHA
+0456F 38                        	SEC
+04570 08                        	PHP
+04571 18                        	CLC
+04572 40                        	RTI
+04573                           t12end:
+04573                           
+04573                           ; CHECK test12
+04573 A5 33                     	LDA $33
+04575 CD 0C 02                  	CMP $020C
+04578 F0 08                     	BEQ test13
+0457A A9 0C                     	LDA #$0C
+0457C 8D 10 02                  	STA $0210
+0457F 4C C0 45                  	JMP theend
+04582                           	
+04582                           	
+04582                           ; expected result: $21 = 0x6C (simulator)
+04582                           ;                  $21 = 0x0C (ours)
+04582                           test13:
+04582                           
+04582                           ; RESET TO CARRY = 0 & ZERO = 0
+04582 69 01                     	ADC #$01
+04584                           	
+04584 78                        	SEI
+04585 F8                        	SED
+04586 08                        	PHP
+04587 68                        	PLA
+04588 85 20                     	STA $20
+0458A 58                        	CLI
+0458B D8                        	CLD
+0458C 08                        	PHP
+0458D 68                        	PLA
+0458E 65 20                     	ADC $20
+04590 85 21                     	STA $21
+04592                           
+04592                           ; CHECK test13
+04592 A5 21                     	LDA $21
+04594 CD 0D 02                  	CMP $020D
+04597 F0 08                     	BEQ test14
+04599 A9 0D                     	LDA #$0D
+0459B 8D 10 02                  	STA $0210
+0459E 4C C0 45                  	JMP theend
+045A1                           
+045A1                           
+045A1                           ; expect result: $60 = 0x42
+045A1                           test14:
+045A1                           	; !!! NOTICE: BRK doesn't work in this
+045A1                           	; simulator, so commented instructions 
+045A1                           	; are what should be executed...
+045A1                           	;JMP pass_intrp
+045A1 A9 41                     	LDA #$41
+045A3 85 60                     	STA $60
+045A5                           	;RTI
+045A5                           	;pass_intrp:
+045A5                           	;LDA #$FF
+045A5                           	;STA $60
+045A5                           	;BRK (two bytes)
+045A5 E6 60                     	INC $60
+045A7                           	
+045A7                           ; CHECK test14
+045A7 A5 60                     	LDA $60
+045A9 CD 0E 02                  	CMP $020E
+045AC F0 08                     	BEQ suiteafinal
+045AE A9 0E                     	LDA #$0E
+045B0 8D 10 02                  	STA $0210
+045B3 4C C0 45                  	JMP theend
+045B6                           
+045B6                           suiteafinal:
+045B6                           	; IF $0210 == 0xFE, INCREMENT
+045B6                           	; (checking that it didn't 
+045B6                           	;  happen to wander off and 
+045B6                           	;  not run our instructions
+045B6                           	;  to say which tests failed...)
+045B6 A9 FE                     	LDA #$FE
+045B8 CD 10 02                  	CMP $0210
+045BB D0 03                     	BNE theend
+045BD EE 10 02                  	INC $0210
+045C0                           theend:
+045C0 4C C0 45                  	JMP theend
