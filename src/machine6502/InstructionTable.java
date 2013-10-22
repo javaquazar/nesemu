@@ -23,10 +23,11 @@ class InstructionTable {
             @Override
             public int operate(CPUState regdata, Memory mem) {
                 int m = mem.readByte(regdata.pc+1);
+                int value = mem.readByte(m);
                 
-                regdata.setFlag(CPUFlags.Z, (m & regdata.a) == 0);
-                regdata.setFlag(CPUFlags.V, (m & 0x40) != 0);
-                regdata.setFlag(CPUFlags.N, (m & 0x80) != 0);
+                regdata.setFlag(CPUFlags.Z, (value & regdata.a) == 0);
+                regdata.setFlag(CPUFlags.V, (value & 0x40) != 0);
+                regdata.setFlag(CPUFlags.N, (value & 0x80) != 0);
                 
                 regdata.pc += 2;
                 return 3;
@@ -37,10 +38,11 @@ class InstructionTable {
             @Override
             public int operate(CPUState regdata, Memory mem) {
                 int m = MemUtils.readShort(mem, regdata.pc+1);
+                int value = mem.readByte(m);
                 
-                regdata.setFlag(CPUFlags.Z, (m & regdata.a) == 0);
-                regdata.setFlag(CPUFlags.V, (m & 0x40) != 0);
-                regdata.setFlag(CPUFlags.N, (m & 0x80) != 0);
+                regdata.setFlag(CPUFlags.Z, (value & regdata.a) == 0);
+                regdata.setFlag(CPUFlags.V, (value & 0x40) != 0);
+                regdata.setFlag(CPUFlags.N, (value & 0x80) != 0);
                 
                 regdata.pc += 3;
                 return 4;
