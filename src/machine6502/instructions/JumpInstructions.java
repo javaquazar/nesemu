@@ -79,7 +79,7 @@ public class JumpInstructions {
                 int jump_addr;
                 
                 regdata.flags = CPUUtils.pullByte(regdata, mem);
-                jump_addr = CPUUtils.pullShort(regdata, mem)+1;
+                jump_addr = CPUUtils.pullShort(regdata, mem);
                 
                 regdata.pc = jump_addr;
                 return 6;

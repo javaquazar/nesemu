@@ -34,7 +34,7 @@ start:
 	STA $020B
 	LDA #$42
 	STA $020C
-	LDA #$6C
+	LDA #$0C
 	STA $020D
 	LDA #$42
 	STA $020E
@@ -875,14 +875,15 @@ test11:
 test12:
 	STA $2001
 	CLC
+test12_branch1:
 	LDA #$42
 	BCC runstuff
 	STA $33
 	BCS t12end
 runstuff:
-	LDA #$45
+	LDA #>test12_branch1
 	PHA
-	LDA #$61
+	LDA #<test12_branch1
 	PHA
 	SEC
 	PHP
@@ -953,6 +954,7 @@ test14:
 	JMP theend
 
 suiteafinal:
+	STA $2001
 	; IF $0210 == 0xFE, INCREMENT
 	; (checking that it didn't 
 	;  happen to wander off and 

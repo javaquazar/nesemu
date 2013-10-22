@@ -34,7 +34,7 @@ public class AllSuiteA {
             {0x30, 0xCE},
             {0x30, 0x29},
             {0x33, 0x42},
-            {0x21, 0x6C},
+            {0x21, 0x0C},
             {0x60, 0x42},
             
             {0x0210, 0xFF}
@@ -104,6 +104,11 @@ public class AllSuiteA {
 
     @Test
     public void test() {
-        cpu.runUntilBreak();
+    	try {
+    		cpu.runUntilBreak();
+    	} catch (Exception e) {
+    		System.err.println(e);
+    		cpu.printDebug(System.out);
+    	}
     }
 }
