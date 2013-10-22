@@ -250,56 +250,39 @@ test02:
 	LDA $90
 	LDX $90
 	
-	; A, X, $90 = 1
-	
 	STA $90,X
 	INC $90,X
 	LDA $90,X
 	LDX $91
-	
-	; A, X, $91 = 2
 	
 	STA $0190,X
 	INC $0192
 	LDA $0190,X
 	LDX $0192
 	
-	; A, X, $0192 = 3
-	
 	STA $0190,X
 	INC $0190,X
 	LDA $0190,X
 	LDX $0193
-	
-	; A, X, $0193 = 4
 	
 	STA $0170,X
 	DEC $0170,X
 	LDA $0170,X
 	LDX $0174
 	
-	; A, X, $0174 = 3
-	
 	STA $0170,X
 	DEC $0173
 	LDA $0170,X
 	LDX $0173
-	
-	; A, X, $0173 = 2
 
 	STA $70,X
 	DEC $70,X
 	LDA $70,X
 	LDX $72
 	
-	; A, X, $72 = 1
-	
 	STA $70,X
 	DEC $71
 	DEC $71
-	
-	; A, X = 1
-	; $71 = FF
 	
 ; CHECK test02
 	LDA $71
@@ -464,14 +447,9 @@ test05:
 ; expected result: $30 = 9D
 test06:
 	STA $2001
-	
-	; A,X,Y = 33
-	; Flags: nvbdiZC
 
 ; RESET TO CARRY FLAG = 0
 	ROL
-	; A = 67
-	; Flags: nvbdizc
 
 	LDA #$6A
 	STA $50
@@ -482,16 +460,10 @@ test06:
 	LDA #$A2
 	STA $61
 	
-	; A = A2, Flags: Nvbdizc
-	
 	LDA #$FF
 	ADC #$FF
-	; A = FE, Flags: NvbdizC
 	ADC #$FF
-	; A = FE, Flags: NvbdizC
 	SBC #$AE
-	
-	; A = 50, Flags: nvbdizC
 	
 	STA $40
 	LDX $40
@@ -631,7 +603,7 @@ bne3:
 	STA $43
 	LDX $43
 	ORA #$24
-	CMP ($40,X)		; $9D19
+	CMP ($40,X)
 	BEQ beq4 ; not taken
 	ORA #$7F
 beq4:
