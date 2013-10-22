@@ -4,16 +4,11 @@ import static org.junit.Assert.*;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 
-import machine6502.ByteUtils;
 import machine6502.CPU;
 import machine6502.MemUtils;
 import machine6502.Memory;
-import memory.DebugUtil;
-import memory.Segmented;
-import memory.Zero;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -24,8 +19,6 @@ public class AllSuiteA {
     
     private Memory mem;
     private CPU cpu;
-    
-
     
     private static final int[][] passes = {
             {0x022A, 0x55},
