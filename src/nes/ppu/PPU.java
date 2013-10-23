@@ -5,8 +5,6 @@ import java.io.OutputStream;
 
 import machine6502.CPUCycleCounter;
 import machine6502.Memory;
-import memory.Debug;
-import memory.RAM;
 
 public class PPU {
     /*
@@ -21,47 +19,47 @@ public class PPU {
      *  - 341 PPU cycles per scanline
      *  - 262 scanlines, including vblank
      */
+    public static final int PPU_CYCLES_PER_SCANLINE = 341;
+    public static final int PPU_SCREEN_CYCLES = PPU_CYCLES_PER_SCANLINE * 240;
+    public static final int PPU_VBLANK_CYCLES = PPU_CYCLES_PER_SCANLINE * 22;
 
     private static final int VRAM_SIZE = 0x4000;
-    private static final int PALETTE_SIZE = 0x20;
     
     private memory.FixedSegmented memPatterntables;
     private NametableMemory memNametables;
-    private int[] nt0, nt1;
-            
+    
     private Memory vram;
-    private int[] sprram;
     private boolean vblankFlag;
-    private int[] palette;
+    public boolean vramAddrLatch;
     
-    private CPUCycleCounter cpuCycleCounter;
-    private int lastCpuCycle;
-    
-    /**
-     * VRAM address: 0yyyNNYY YYYXXXXX
-     * <p>
-     * yyy: fine Y scroll;<br>
-     * NN: name table index;<br>
-     * YYYYY: coarse Y scroll;<br>
-     * XXXXX: coarse X scroll;<br>
-     * xxx: fine X scroll (not part of the address);
-     * <p>
-     * Source: http://forums.nesdev.com/viewtopic.php?p=105762#p105762
-     */
-    private int vramAddr;
-    private boolean vramAddrLatch;
-    private int fineXScroll;
-    
-    private PCR1 pcr1;
-    private PCR2 pcr2;
+    private PPURender render;
+    private PPURenderData renderData;
+
+    private CPUCycleCounter cycleCounter;
+    private int lastCPUCycles;
     
     public PPU(boolean horizontalMirroring) {
-        pcr1 = new PCR1();
-        pcr2 = new PCR2();
-        
-        palette = new int[PALETTE_SIZE];
+        this.renderData = new PPURenderData();
 
-        memory.RAM memPalette = new memory.RAM(palette);
+        Memory memPalette = new Memory() {
+            @Override
+            public int readByte(int addr) {
+                if (addr % 4 == 0) {
+                    return renderData.paletteBG;
+                } else {
+                    return renderData.palette[addr - addr/4 - 1];
+                }
+            }
+            
+            @Override
+            public void writeByte(int addr, int value) {
+                if (addr % 4 == 0) {
+                    renderData.paletteBG = value;
+                } else {
+                    renderData.palette[addr - addr/4 - 1] = value;
+                }
+            }
+        };
         
         memory.Segmented mem = new memory.Segmented();
         
@@ -76,60 +74,61 @@ public class PPU {
         mem.addSegment(0x3000, 0x3EFF, new memory.Zero());
         // Background and sprite palettes
         mem.addSegment(0x3F00, 0x3F1F, memPalette);
-        mem.addSegment(0x3F20, 0x3FFF, new memory.Mirrored(PALETTE_SIZE, memPalette));
+        mem.addSegment(0x3F20, 0x3FFF, new memory.Mirrored(PPURenderData.PALETTE_SIZE, memPalette));
         
         // Name/attribute tables
         
         vram = new memory.Mirrored(VRAM_SIZE, mem);
         vram = new memory.Debug(vram);
         
-        sprram = new int[256];
-        
-        nt0 = new int[0x400];
-        nt1 = new int[0x400];
-        
         setNametableMirroring(horizontalMirroring);
     }
     
     public void setPatternTable(Memory mem) {
         memPatterntables.setSegment(0, mem);
+        renderData.patternTableMem = mem;
     }
     
     private void setNametableMirroring(boolean horizontal) {
-        memNametables.setNametableRAM(0, nt0);
+        memNametables.setNametableRAM(0, renderData.nt0);
         
         if (horizontal) {
-            memNametables.setNametableRAM(1, nt0);
-            memNametables.setNametableRAM(2, nt1);
+            memNametables.setNametableRAM(1, renderData.nt0);
+            memNametables.setNametableRAM(2, renderData.nt1);
         } else {
-            memNametables.setNametableRAM(1, nt1);
-            memNametables.setNametableRAM(2, nt0);
+            memNametables.setNametableRAM(1, renderData.nt1);
+            memNametables.setNametableRAM(2, renderData.nt0);
         }
         
-        memNametables.setNametableRAM(3, nt1);
+        memNametables.setNametableRAM(3, renderData.nt1);
     }
     
-    public void advance() {
-        int currentCpuCycle = this.cpuCycleCounter.getCycles();
-        
-        this.lastCpuCycle = currentCpuCycle;
+    private void advance() {
+        if (render != null) {
+            int cpuCycles = cycleCounter.getCycles();
+            render.advance((cpuCycles - this.lastCPUCycles) * 15/5);
+            this.lastCPUCycles = cpuCycles;
+        }
     }
 
-    public void startRenderingFrame(CPUCycleCounter cycleCounter) {
-        this.cpuCycleCounter = cycleCounter;
-        this.lastCpuCycle = cycleCounter.getCycles();
+    public void startRenderingFrame(CPUCycleCounter cycleCounter, int[] buffer) {
+        assert this.render == null;
+        this.cycleCounter = cycleCounter;
+        this.lastCPUCycles = cycleCounter.getCycles();
+        this.render = new PPURender(renderData, buffer);
     }
 
     public void finishRenderingFrame() {
-        advance();
+        assert render != null;
         
-        this.cpuCycleCounter = null;
+        advance();
+        this.render = null;
     }
 
     public boolean enterVBlank() {
         vblankFlag = true;
         
-        return pcr1.isNMIVBlankOn();
+        return renderData.pcr1.isNMIVBlankOn();
     }
     
     public void leaveVBlank() {
@@ -145,16 +144,19 @@ public class PPU {
     }
     
     public void writePPUScroll(int value) {
+        advance();
+        
         if (!vramAddrLatch) {
             // YY-- -yyy
             int YY = value >> 6;
             int yyy = value & 0x07;
             
-            vramAddr = (vramAddr & ~0x7300) | (YY<<8) | (yyy<<12);
+            renderData.vramAddr = (renderData.vramAddr & ~0x7300) |
+                                  (YY<<8) | (yyy<<12);
         } else {
             // ---- -xxx
             int xxx = value & 0x07;
-            fineXScroll = xxx;
+            renderData.fineXScroll = xxx;
         }
         
         // flip-flop the latch
@@ -162,12 +164,14 @@ public class PPU {
     }
 
     public void writePPUAddr(int value) {
+        advance();
+        
         if (!vramAddrLatch) {
             // hi byte
-            vramAddr = (value<<8) | (vramAddr & 0x00FF);
+            renderData.vramAddr = (value<<8) | (renderData.vramAddr & 0x00FF);
         } else {
             // lo byte
-            vramAddr = (vramAddr & 0xFF00) | value;
+            renderData.vramAddr = (renderData.vramAddr & 0xFF00) | value;
         }
         
         // flip-flop the latch
@@ -175,23 +179,29 @@ public class PPU {
     }
 
     public void writePPUData(int value) {
-        vram.writeByte(vramAddr, value);
-        vramAddr = (vramAddr + pcr1.getVRAMIncrement()) & 0xFFFF;
+        advance();
+        
+        vram.writeByte(renderData.vramAddr, value);
+        renderData.vramAddr = (renderData.vramAddr +
+                               renderData.pcr1.getVRAMIncrement()) & 0xFFFF;
     }
 
     public int readPPUData() {
-        int value = vram.readByte(vramAddr);
-        vramAddr = (vramAddr + pcr1.getVRAMIncrement()) & 0xFFFF;
+        int value = vram.readByte(renderData.vramAddr);
+        renderData.vramAddr = (renderData.vramAddr +
+                               renderData.pcr1.getVRAMIncrement()) & 0xFFFF;
         
         return value;
     }
 
     public void writePCR1(int value) {
-        pcr1.setRegister(value);
+        advance();
+        renderData.pcr1.setRegister(value);
     }
     
     public void writePCR2(int value) {
-        pcr2.setRegister(value);
+        advance();
+        renderData.pcr2.setRegister(value);
     }
     
     public void dumpVRAM(OutputStream out) throws IOException {

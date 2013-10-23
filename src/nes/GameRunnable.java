@@ -9,9 +9,6 @@ import machine6502.CPU;
 import machine6502.CPUCycleCounter;
 
 public class GameRunnable implements Runnable {
-    private static final int PPU_PER_SCANLINE = 341;
-    private static final int PPU_SCREEN_CYCLES = PPU_PER_SCANLINE * 240;
-    private static final int PPU_VBLANK_CYCLES = PPU_PER_SCANLINE * 22;
     
     private nes.ROM rom;
     
@@ -60,14 +57,16 @@ public class GameRunnable implements Runnable {
         
         int frame = 0;
         
+        int[] renderBuffer = new int[256*240];
+        
         try {
             while (frame < 60*3) {
                 CPUCycleCounter cycleCounter = new CPUCycleCounter();
                 
-                ppu.startRenderingFrame(cycleCounter);
+                ppu.startRenderingFrame(cycleCounter, renderBuffer);
                 
                 // Go until screen is done rendering
-                cpu.runForXCycles(PPU_SCREEN_CYCLES*5/15, cycleCounter);
+                cpu.runForXCycles(PPU.PPU_SCREEN_CYCLES*5/15, cycleCounter);
                 
                 // entering VBlank
                 // the crt beam is moving its way back to the top of the TV
@@ -84,7 +83,7 @@ public class GameRunnable implements Runnable {
                 }
                 
                 // Go until VBlank is done
-                cpu.runForXCycles(PPU_VBLANK_CYCLES*5/15);
+                cpu.runForXCycles(PPU.PPU_VBLANK_CYCLES*5/15);
                 
                 // leaving VBlank
                 ppu.leaveVBlank();
