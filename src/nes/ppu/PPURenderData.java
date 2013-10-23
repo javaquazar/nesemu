@@ -6,7 +6,7 @@ public class PPURenderData {
     public static final int PALETTE_SIZE = 24;
 
     public Memory patternTableMem;
-    public int[] nt0, nt1, nt2, nt3;
+    public int[][] nametable;
     public int[] sprram;
     public int paletteBG;
     public int[] palette;
@@ -29,6 +29,7 @@ public class PPURenderData {
     public PCR2 pcr2;
     
     public PPURenderData() {
+    	nametable = new int[4][];
         pcr1 = new PCR1();
         pcr2 = new PCR2();
         palette = new int[PALETTE_SIZE];

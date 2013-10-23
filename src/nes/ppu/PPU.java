@@ -95,22 +95,22 @@ public class PPU {
     
     private void setNametableMirroring(boolean horizontal) {
         memNametables.setNametableRAM(0, nt0);
-        renderData.nt0 = nt0;
+        renderData.nametable[0] = nt0;
         
         if (horizontal) {
             memNametables.setNametableRAM(1, nt0);
             memNametables.setNametableRAM(2, nt1);
-            renderData.nt1 = nt0;
-            renderData.nt2 = nt1;
+            renderData.nametable[1] = nt0;
+            renderData.nametable[2] = nt1;
         } else {
             memNametables.setNametableRAM(1, nt1);
             memNametables.setNametableRAM(2, nt0);
-            renderData.nt1 = nt1;
-            renderData.nt2 = nt0;
+            renderData.nametable[1] = nt1;
+            renderData.nametable[2] = nt0;
         }
         
         memNametables.setNametableRAM(3, nt1);
-        renderData.nt3 = nt1;
+        renderData.nametable[3] = nt1;
     }
     
     private void advance() {

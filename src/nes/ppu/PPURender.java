@@ -7,6 +7,7 @@ public class PPURender {
     
     private int currentScanline;
     private int currentScanlineCycle;
+    private int scroll_x, scroll_y;
     
     public PPURender(PPURenderData data, int[] buffer, int[] palette) {
         this.renderData = data;
@@ -37,6 +38,43 @@ public class PPURender {
     		ppuCycles -= 1;
     		updateScanlineCycle(1);
     	}
+    }
+    
+    /**
+     * @param x
+     * @param y
+     * @return 0..3
+     */
+    private int getNametablePaletteGroup(int x, int y) {
+    	int nt_x = x / 32;
+    	int nt_y = y / 30;
+    	x = x % 32;
+    	y = y % 30;
+    	
+    	int nt = nt_x*2 + nt_y;
+    	
+    	int attribute = renderData.nametable[nt][0x3C0 + (y/4)*8 + x/4];
+    	
+    	int attr_x = (x % 4)/2;
+    	int attr_y = (y % 4)/2;
+    	
+    	int attr_n = attr_x*2 + attr_y;
+    	
+    	int attr_mask = 0x3 << attr_n;
+    	int attr_shift = attr_n * 2;
+    	
+    	return (attribute & (attr_mask)) >> attr_shift;
+    }
+    
+    private int getNametablePattern(int x, int y) {
+    	int nt_x = x / 32;
+    	int nt_y = y / 30;
+    	x = x % 32;
+    	y = y % 30;
+    	
+    	int nt = nt_x*2 + nt_y;
+    	
+    	return renderData.nametable[nt][y*32 + x];
     }
     
     private void updateScanlineCycle(int ppuCycles) {
