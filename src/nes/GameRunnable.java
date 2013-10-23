@@ -1,6 +1,5 @@
 package nes;
 
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -9,15 +8,22 @@ import machine6502.CPU;
 import machine6502.CPUCycleCounter;
 
 public class GameRunnable implements Runnable {
+	public static interface UIUpdate {
+		public void update(int[] buffer);
+	}
     
     private nes.ROM rom;
+	private UIUpdate ui;
     
-    public GameRunnable(InputStream input) throws IOException {
-        rom = new nes.ROM(input);
+    public GameRunnable(InputStream input, UIUpdate ui) throws IOException {
+        this.rom = new nes.ROM(input);
+        this.ui = ui;
     }
 
     @Override
     public void run() {
+    	boolean running = true;
+    	
         Joypad joypad1;
         joypad1 = new Joypad() {
             @Override
@@ -55,15 +61,14 @@ public class GameRunnable implements Runnable {
         CPU cpu = new CPU(new memory.Debug(mem));
         cpu.reset();
         
-        int frame = 0;
-        
         int[] renderBuffer = new int[256*240];
+        int[] palette = new DefaultPalette().getPalette(); 
         
         try {
-            while (frame < 60*3) {
+            while (running) {
                 CPUCycleCounter cycleCounter = new CPUCycleCounter();
                 
-                ppu.startRenderingFrame(cycleCounter, renderBuffer);
+                ppu.startRenderingFrame(cycleCounter, renderBuffer, palette);
                 
                 // Go until screen is done rendering
                 cpu.runForXCycles(PPU.PPU_SCREEN_CYCLES*5/15, cycleCounter);
@@ -74,9 +79,9 @@ public class GameRunnable implements Runnable {
                 ppu.finishRenderingFrame();
                 
                 // notify and update the emulator ui
+                ui.update(renderBuffer);
                 
-                //Thread.sleep(1000/60);
-                Thread.sleep(0);
+                Thread.sleep(1000/60);
                 
                 if (nmi) {
                 	cpu.interruptNMI();
@@ -87,19 +92,9 @@ public class GameRunnable implements Runnable {
                 
                 // leaving VBlank
                 ppu.leaveVBlank();
-                
-                frame++;
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-        }
-        
-        try {
-            FileOutputStream f = new FileOutputStream("vramdump.bin");
-            ppu.dumpVRAM(f);
-            f.close();
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 }

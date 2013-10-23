@@ -20,8 +20,8 @@ public class PPU {
      *  - 262 scanlines, including vblank
      */
     public static final int PPU_CYCLES_PER_SCANLINE = 341;
-    public static final int PPU_SCREEN_CYCLES = PPU_CYCLES_PER_SCANLINE * 240;
-    public static final int PPU_VBLANK_CYCLES = PPU_CYCLES_PER_SCANLINE * 22;
+    public static final int PPU_SCREEN_CYCLES = PPU_CYCLES_PER_SCANLINE * 242;
+    public static final int PPU_VBLANK_CYCLES = PPU_CYCLES_PER_SCANLINE * 20;
 
     private static final int VRAM_SIZE = 0x4000;
     
@@ -34,12 +34,16 @@ public class PPU {
     
     private PPURender render;
     private PPURenderData renderData;
+    private int[] nt0, nt1;
 
     private CPUCycleCounter cycleCounter;
     private int lastCPUCycles;
     
     public PPU(boolean horizontalMirroring) {
         this.renderData = new PPURenderData();
+
+        nt0 = new int[0x400];
+        nt1 = new int[0x400];
 
         Memory memPalette = new Memory() {
             @Override
@@ -90,17 +94,23 @@ public class PPU {
     }
     
     private void setNametableMirroring(boolean horizontal) {
-        memNametables.setNametableRAM(0, renderData.nt0);
+        memNametables.setNametableRAM(0, nt0);
+        renderData.nt0 = nt0;
         
         if (horizontal) {
-            memNametables.setNametableRAM(1, renderData.nt0);
-            memNametables.setNametableRAM(2, renderData.nt1);
+            memNametables.setNametableRAM(1, nt0);
+            memNametables.setNametableRAM(2, nt1);
+            renderData.nt1 = nt0;
+            renderData.nt2 = nt1;
         } else {
-            memNametables.setNametableRAM(1, renderData.nt1);
-            memNametables.setNametableRAM(2, renderData.nt0);
+            memNametables.setNametableRAM(1, nt1);
+            memNametables.setNametableRAM(2, nt0);
+            renderData.nt1 = nt1;
+            renderData.nt2 = nt0;
         }
         
-        memNametables.setNametableRAM(3, renderData.nt1);
+        memNametables.setNametableRAM(3, nt1);
+        renderData.nt3 = nt1;
     }
     
     private void advance() {
@@ -111,11 +121,13 @@ public class PPU {
         }
     }
 
-    public void startRenderingFrame(CPUCycleCounter cycleCounter, int[] buffer) {
+    public void startRenderingFrame(CPUCycleCounter cycleCounter,
+    								int[] buffer, int[] palette)
+    {
         assert this.render == null;
         this.cycleCounter = cycleCounter;
         this.lastCPUCycles = cycleCounter.getCycles();
-        this.render = new PPURender(renderData, buffer);
+        this.render = new PPURender(renderData, buffer, palette);
     }
 
     public void finishRenderingFrame() {

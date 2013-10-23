@@ -11,7 +11,11 @@ public class NESTest {
     {
 
         FileInputStream input = new FileInputStream(args[0]);
-        GameRunnable nes = new GameRunnable(input);
+        GameRunnable.UIUpdate ui = new GameRunnable.UIUpdate() {
+			@Override
+			public void update(int[] buffer) {}
+		};
+        GameRunnable nes = new GameRunnable(input, ui);
         input.close();
         
         nes.run();

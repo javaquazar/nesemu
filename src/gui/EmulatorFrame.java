@@ -1,14 +1,12 @@
 package gui;
 
 import java.awt.Graphics;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.image.BufferedImage;
+import java.awt.image.WritableRaster;
 
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import nes.NESJoypad;
@@ -17,35 +15,19 @@ public class EmulatorFrame extends JFrame {
     private static final long serialVersionUID = 1L;
     
     private NESJoypad joypad;
+    private JPanel panel;
+    private BufferedImage image;
 
     public EmulatorFrame() {
         joypad = new NESJoypad();
-        
-        JPanel panel = new JPanel() {
+        image = new BufferedImage(256, 240, BufferedImage.TYPE_3BYTE_BGR);
+
+        panel = new JPanel() {
             private static final long serialVersionUID = 1L;
-            
-            private BufferedImage image;
-            private int x;
-            
-            {
-                x = 0;
-                image = new BufferedImage(256, 240, BufferedImage.TYPE_3BYTE_BGR);
-                
-                new javax.swing.Timer(1000/60, new ActionListener() {
-                    
-                    @Override
-                    public void actionPerformed(ActionEvent arg0) {
-                        repaint();
-                    }
-                }).start();
-            }
-            
+
             @Override
             public void paintComponent(Graphics g) {
-                
-                int[] arr = {0x000000FF, 0x00FFFFFF};
                 // 0x00RRGGBB
-                image.setRGB(x++, 100, 2, 1, arr, 0, 256);
                 g.drawImage(image, 0, 0, null);
             }
         };
@@ -75,6 +57,13 @@ public class EmulatorFrame extends JFrame {
                 }
             }
         });
+    }
+    
+    public void updateBuffer(int[] buffer) {
+    	WritableRaster r;
+    	r = image.getRaster();
+    	r.setSamples(0, 0, 256, 240, 2, buffer);
+    	panel.repaint();
     }
     
     private static int keyCodeToButton(int code) {
