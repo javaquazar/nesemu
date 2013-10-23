@@ -55,7 +55,7 @@ public class PPU {
     private PCR1 pcr1;
     private PCR2 pcr2;
     
-    public PPU() {
+    public PPU(boolean horizontalMirroring) {
         pcr1 = new PCR1();
         pcr2 = new PCR2();
         
@@ -88,7 +88,7 @@ public class PPU {
         nt0 = new int[0x400];
         nt1 = new int[0x400];
         
-        setNametableMirroring(true);
+        setNametableMirroring(horizontalMirroring);
     }
     
     public void setPatternTable(Memory mem) {
@@ -126,8 +126,10 @@ public class PPU {
         this.cpuCycleCounter = null;
     }
 
-    public void enterVBlank() {
+    public boolean enterVBlank() {
         vblankFlag = true;
+        
+        return pcr1.isNMIVBlankOn();
     }
     
     public void leaveVBlank() {

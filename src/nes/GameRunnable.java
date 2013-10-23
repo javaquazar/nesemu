@@ -34,7 +34,7 @@ public class GameRunnable implements Runnable {
             }
         };
         
-        PPU ppu = new PPU();
+        PPU ppu = new PPU(false);
         
         ppu.setPatternTable(rom.getCHR(0));
 
@@ -61,7 +61,7 @@ public class GameRunnable implements Runnable {
         int frame = 0;
         
         try {
-            while (frame < 60*5) {
+            while (frame < 60*3) {
                 CPUCycleCounter cycleCounter = new CPUCycleCounter();
                 
                 ppu.startRenderingFrame(cycleCounter);
@@ -71,13 +71,17 @@ public class GameRunnable implements Runnable {
                 
                 // entering VBlank
                 // the crt beam is moving its way back to the top of the TV
-                ppu.enterVBlank();
+                boolean nmi = ppu.enterVBlank();
                 ppu.finishRenderingFrame();
                 
                 // notify and update the emulator ui
                 
                 //Thread.sleep(1000/60);
                 Thread.sleep(0);
+                
+                if (nmi) {
+                	cpu.interruptNMI();
+                }
                 
                 // Go until VBlank is done
                 cpu.runForXCycles(PPU_VBLANK_CYCLES*5/15);
