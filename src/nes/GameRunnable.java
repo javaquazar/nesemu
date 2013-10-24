@@ -64,8 +64,24 @@ public class GameRunnable implements Runnable {
         int[] renderBuffer = new int[256*240];
         int[] palette = new DefaultPalette().getPalette(); 
         
+        long desired_sleep_ms = 1000/60;
+        
         try {
+            boolean nmi = false;
             while (running) {
+                if (nmi) {
+                    cpu.interruptNMI();
+                }
+                
+                long begin, end;
+                begin = System.currentTimeMillis();
+                
+                // Go until VBlank is done
+                cpu.runForXCycles(PPU.PPU_VBLANK_CYCLES*5/15);
+                
+                // leaving VBlank
+                ppu.leaveVBlank();
+                
                 CPUCycleCounter cycleCounter = new CPUCycleCounter();
                 
                 ppu.startRenderingFrame(cycleCounter, renderBuffer, palette);
@@ -75,23 +91,19 @@ public class GameRunnable implements Runnable {
                 
                 // entering VBlank
                 // the crt beam is moving its way back to the top of the TV
-                boolean nmi = ppu.enterVBlank();
+                nmi = ppu.enterVBlank();
                 ppu.finishRenderingFrame();
                 
                 // notify and update the emulator ui
                 ui.update(renderBuffer);
                 
-                Thread.sleep(1000/60);
+                end = System.currentTimeMillis();
                 
-                if (nmi) {
-                	cpu.interruptNMI();
+                long sleep_ms = desired_sleep_ms - (end-begin);
+                
+                if (sleep_ms > 0) {
+                    Thread.sleep(sleep_ms);
                 }
-                
-                // Go until VBlank is done
-                cpu.runForXCycles(PPU.PPU_VBLANK_CYCLES*5/15);
-                
-                // leaving VBlank
-                ppu.leaveVBlank();
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
