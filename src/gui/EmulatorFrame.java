@@ -20,7 +20,7 @@ public class EmulatorFrame extends JFrame {
 
     public EmulatorFrame() {
         joypad = new NESJoypad();
-        image = new BufferedImage(256, 240, BufferedImage.TYPE_3BYTE_BGR);
+        image = new BufferedImage(256, 240, BufferedImage.TYPE_INT_RGB);
 
         panel = new JPanel() {
             private static final long serialVersionUID = 1L;
@@ -62,7 +62,7 @@ public class EmulatorFrame extends JFrame {
     public void updateBuffer(int[] buffer) {
     	WritableRaster r;
     	r = image.getRaster();
-    	r.setSamples(0, 0, 256, 240, 2, buffer);
+    	r.setDataElements(0, 0, 256, 240, buffer);
     	panel.repaint();
     }
     
