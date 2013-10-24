@@ -128,6 +128,8 @@ public class PPU {
         this.cycleCounter = cycleCounter;
         this.lastCPUCycles = cycleCounter.getCycles();
         this.render = new PPURender(renderData, buffer, palette);
+        
+        renderData.sprite0Occurance = false;
     }
 
     public void finishRenderingFrame() {
@@ -151,8 +153,9 @@ public class PPU {
         boolean vblank = vblankFlag;
         
         vblankFlag = false;
+        vramAddrLatch = false;
         
-        return (vblank ? 0x80:0) | (0);
+        return (vblank ? 0x80:0) | (renderData.sprite0Occurance ? 0x40:0);
     }
     
     public void writePPUScroll(int value) {

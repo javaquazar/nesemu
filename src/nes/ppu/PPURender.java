@@ -28,16 +28,44 @@ public class PPURender {
         // 241 - dummy
         
         // vertial+horizontal scroll counters are updated at cc 256
+        
+        
     	
     	while (ppuCycles > 0) {
     		if (currentScanline < 240 && currentScanlineCycle < 256) {
-    			int color = renderData.paletteBG;
+    		    int x, y;
+    		    x = currentScanlineCycle;
+    		    y = currentScanline;
+    		    
+    		    int xp, yp;
+    		    xp = x % 8;
+    		    yp = y % 8;
+    		    
+    		    int paletteGroup = getNametablePaletteGroup(x/8, x/8);
+    		    int pattern = getNametablePattern(x/8, y/8);
+    		    int patternPixel = getPatternPixel(pattern, xp, yp);
+    		    
+    		    int color;
+    		    if (patternPixel == 0) {
+    		        color = renderData.paletteBG;
+    		    } else {
+                    color = renderData.palette[patternPixel-1 + paletteGroup*3];
+    		    }
     			int value = palette[color];
     			buffer[currentScanline*256 + currentScanlineCycle] = value;
     		}
     		ppuCycles -= 1;
     		updateScanlineCycle(1);
     	}
+    }
+    
+    private int getPatternPixel(int pattern, int x, int y) {
+        int lo_y = renderData.patternTableMem.readByte(256*16 + pattern*16 + y);
+        int hi_y = renderData.patternTableMem.readByte(256*16 + pattern*16 + y + 8);
+        
+        x = 7-x;
+        
+        return ((lo_y >> x)&1) | (((hi_y >> x)&1)<<1);
     }
     
     /**

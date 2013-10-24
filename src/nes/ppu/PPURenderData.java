@@ -27,6 +27,8 @@ public class PPURenderData {
     
     public PCR1 pcr1;
     public PCR2 pcr2;
+
+    public boolean sprite0Occurance;
     
     public PPURenderData() {
     	nametable = new int[4][];
@@ -34,5 +36,6 @@ public class PPURenderData {
         pcr2 = new PCR2();
         palette = new int[PALETTE_SIZE];
         sprram = new int[256];
+        sprite0Occurance = false;
     }
 }
