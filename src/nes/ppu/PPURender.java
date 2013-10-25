@@ -60,8 +60,9 @@ public class PPURender {
     }
     
     private int getPatternPixel(int pattern, int x, int y) {
-        int lo_y = renderData.patternTableMem.readByte(256*16 + pattern*16 + y);
-        int hi_y = renderData.patternTableMem.readByte(256*16 + pattern*16 + y + 8);
+        int bg_off = renderData.pcr1.getBackgroundPatternTable();
+        int lo_y = renderData.patternTableMem.readByte(bg_off + pattern*16 + y);
+        int hi_y = renderData.patternTableMem.readByte(bg_off + pattern*16 + y + 8);
         
         x = 7-x;
         
