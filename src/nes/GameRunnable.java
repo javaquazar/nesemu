@@ -84,15 +84,17 @@ public class GameRunnable implements Runnable {
                 
                 CPUCycleCounter cycleCounter = new CPUCycleCounter();
                 
-                ppu.startRenderingFrame(cycleCounter, renderBuffer, palette);
-                
-                // Go until screen is done rendering
-                cpu.runForXCycles(PPU.PPU_SCREEN_CYCLES*5/15, cycleCounter);
-                
-                // entering VBlank
-                // the crt beam is moving its way back to the top of the TV
-                nmi = ppu.enterVBlank();
-                ppu.finishRenderingFrame();
+                synchronized (renderBuffer) {
+	                ppu.startRenderingFrame(cycleCounter, renderBuffer, palette);
+	                
+	                // Go until screen is done rendering
+	                cpu.runForXCycles(PPU.PPU_SCREEN_CYCLES*5/15, cycleCounter);
+	                
+	                // entering VBlank
+	                // the crt beam is moving its way back to the top of the TV
+	                nmi = ppu.enterVBlank();
+	                ppu.finishRenderingFrame();
+                }
                 
                 // notify and update the emulator ui
                 ui.update(renderBuffer);

@@ -41,7 +41,7 @@ public class PPURender {
     		    xp = x % 8;
     		    yp = y % 8;
     		    
-    		    int paletteGroup = getNametablePaletteGroup(x/8, x/8);
+    		    int paletteGroup = getNametablePaletteGroup(x/8, y/8);
     		    int pattern = getNametablePattern(x/8, y/8);
     		    int patternPixel = getPatternPixel(pattern, xp, yp);
     		    
@@ -79,19 +79,18 @@ public class PPURender {
     	x = x % 32;
     	y = y % 30;
     	
-    	int nt = nt_x*2 + nt_y;
+    	int nt = nt_y*2 + nt_x;
     	
-    	int attribute = renderData.nametable[nt][0x3C0 + (y/4)*8 + x/4];
+    	int attribute = renderData.nametable[nt][0x3C0 + (y/4)*(32/4) + x/4];
     	
     	int attr_x = (x % 4)/2;
     	int attr_y = (y % 4)/2;
     	
-    	int attr_n = attr_x*2 + attr_y;
-    	
-    	int attr_mask = 0x3 << attr_n;
+    	int attr_n = attr_y*2 + attr_x;
+
     	int attr_shift = attr_n * 2;
     	
-    	return (attribute & (attr_mask)) >> attr_shift;
+    	return (attribute & (0x3 << attr_shift)) >> attr_shift;
     }
     
     private int getNametablePattern(int x, int y) {
@@ -100,7 +99,7 @@ public class PPURender {
     	x = x % 32;
     	y = y % 30;
     	
-    	int nt = nt_x*2 + nt_y;
+    	int nt = nt_y*2 + nt_x;
     	
     	return renderData.nametable[nt][y*32 + x];
     }
