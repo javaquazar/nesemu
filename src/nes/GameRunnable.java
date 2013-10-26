@@ -8,8 +8,27 @@ import machine6502.CPU;
 import machine6502.CPUCycleCounter;
 
 public class GameRunnable implements Runnable {
-	public static interface UIUpdate {
+	private static final class IndirectJoypad implements Joypad {
+        private Joypad joypad;
+
+        public void setJoypad(Joypad j) {
+            this.joypad = j;
+        }
+
+        @Override
+        public int getButtonCount() {
+            return joypad.getButtonCount();
+        }
+
+        @Override
+        public boolean getButton(int button) {
+            return joypad.getButton(button);
+        }
+    }
+
+    public static interface UIUpdate {
 		public void update(int[] buffer);
+		public Joypad getJoypad(int player);
 	}
     
     private nes.ROM rom;
@@ -24,18 +43,8 @@ public class GameRunnable implements Runnable {
     public void run() {
     	boolean running = true;
     	
-        Joypad joypad1;
-        joypad1 = new Joypad() {
-            @Override
-            public int getButtonCount() {
-                return 8;
-            }
-            
-            @Override
-            public boolean getButton(int button) {
-                return false;
-            }
-        };
+    	IndirectJoypad joypad1;
+        joypad1 = new IndirectJoypad();
         
         PPU ppu = new PPU(false);
         
@@ -69,6 +78,8 @@ public class GameRunnable implements Runnable {
         try {
             boolean nmi = false;
             while (running) {
+                joypad1.setJoypad(ui.getJoypad(0));
+                
                 if (nmi) {
                     cpu.interruptNMI();
                 }

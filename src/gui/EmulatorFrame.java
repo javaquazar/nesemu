@@ -9,17 +9,24 @@ import java.awt.image.WritableRaster;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
+import nes.Joypad;
 import nes.NESJoypad;
 
 public class EmulatorFrame extends JFrame {
     private static final long serialVersionUID = 1L;
     
-    private NESJoypad joypad;
     private JPanel panel;
     private BufferedImage image;
+    
+    private static class JoypadSwitch {
+        public NESJoypad joypad;
+    }
+    
+    private JoypadSwitch j;
 
     public EmulatorFrame() {
-        joypad = new NESJoypad();
+        j = new JoypadSwitch();
+        j.joypad = new NESJoypad();
         image = new BufferedImage(256, 240, BufferedImage.TYPE_INT_RGB);
 
         panel = new JPanel() {
@@ -45,7 +52,9 @@ public class EmulatorFrame extends JFrame {
             public void keyReleased(KeyEvent arg) {
                 int button = keyCodeToButton(arg.getKeyCode());
                 if (button >= 0) {
-                    joypad.releaseButton(button);
+                    synchronized (j) {
+                        j.joypad.releaseButton(button);
+                    }
                 }
             }
             
@@ -53,7 +62,9 @@ public class EmulatorFrame extends JFrame {
             public void keyPressed(KeyEvent arg) {
                 int button = keyCodeToButton(arg.getKeyCode());
                 if (button >= 0) {
-                    joypad.pressButton(button);
+                    synchronized (j) {
+                        j.joypad.pressButton(button);
+                    }
                 }
             }
         });
@@ -64,6 +75,17 @@ public class EmulatorFrame extends JFrame {
     	r = image.getRaster();
     	r.setDataElements(0, 0, 256, 240, buffer);
     	panel.repaint();
+    }
+    
+    public Joypad getJoypad() {
+        NESJoypad oldJoypad;
+        
+        synchronized (j) {
+            oldJoypad = j.joypad;
+            j.joypad = oldJoypad.clone();
+        }
+        
+        return oldJoypad;
     }
     
     private static int keyCodeToButton(int code) {

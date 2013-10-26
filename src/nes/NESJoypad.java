@@ -16,6 +16,14 @@ public class NESJoypad implements Joypad {
         this.buttonPressed = new boolean[8];
     }
     
+    @Override
+    public NESJoypad clone() {
+        NESJoypad j = new NESJoypad();
+        j.buttonPressed = this.buttonPressed.clone();
+        
+        return j;
+    }
+
     public void pressButton(int button) {
         buttonPressed[button] = true;
     }

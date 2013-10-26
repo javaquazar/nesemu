@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import javax.swing.SwingUtilities;
 
 import nes.GameRunnable;
+import nes.Joypad;
 
 
 public class Driver {
@@ -18,6 +19,11 @@ public class Driver {
 			public void update(int[] buffer) {
 				frame.updateBuffer(buffer);
 			}
+
+            @Override
+            public Joypad getJoypad(int player) {
+                return frame.getJoypad();
+            }
 		};
 		
         final GameRunnable nes = new GameRunnable(input, ui);
