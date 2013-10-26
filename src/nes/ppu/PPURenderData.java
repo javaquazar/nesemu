@@ -31,7 +31,7 @@ public class PPURenderData {
     public boolean sprite0Occurance;
     
     public PPURenderData() {
-    	nametable = new int[4][];
+        nametable = new int[4][];
         pcr1 = new PCR1();
         pcr2 = new PCR2();
         palette = new int[PALETTE_SIZE];

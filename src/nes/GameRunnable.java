@@ -8,7 +8,7 @@ import machine6502.CPU;
 import machine6502.CPUCycleCounter;
 
 public class GameRunnable implements Runnable {
-	private static final class IndirectJoypad implements Joypad {
+    private static final class IndirectJoypad implements Joypad {
         private Joypad joypad;
 
         public void setJoypad(Joypad j) {
@@ -27,12 +27,12 @@ public class GameRunnable implements Runnable {
     }
 
     public static interface UIUpdate {
-		public void update(int[] buffer);
-		public Joypad getJoypad(int player);
-	}
+        public void update(int[] buffer);
+        public Joypad getJoypad(int player);
+    }
     
     private nes.ROM rom;
-	private UIUpdate ui;
+    private UIUpdate ui;
     
     public GameRunnable(InputStream input, UIUpdate ui) throws IOException {
         this.rom = new nes.ROM(input);
@@ -41,9 +41,9 @@ public class GameRunnable implements Runnable {
 
     @Override
     public void run() {
-    	boolean running = true;
-    	
-    	IndirectJoypad joypad1;
+        boolean running = true;
+        
+        IndirectJoypad joypad1;
         joypad1 = new IndirectJoypad();
         
         PPU ppu = new PPU(false);
@@ -107,15 +107,15 @@ public class GameRunnable implements Runnable {
                 CPUCycleCounter cycleCounter = new CPUCycleCounter();
                 
                 synchronized (renderBuffer) {
-	                ppu.startRenderingFrame(cycleCounter, renderBuffer, palette);
-	                
-	                // Go until screen is done rendering
-	                cpu.runForXCycles(PPU.PPU_SCREEN_CYCLES*5/15, cycleCounter);
-	                
-	                // entering VBlank
-	                // the crt beam is moving its way back to the top of the TV
-	                nmi = ppu.enterVBlank();
-	                ppu.finishRenderingFrame();
+                    ppu.startRenderingFrame(cycleCounter, renderBuffer, palette);
+                    
+                    // Go until screen is done rendering
+                    cpu.runForXCycles(PPU.PPU_SCREEN_CYCLES*5/15, cycleCounter);
+                    
+                    // entering VBlank
+                    // the crt beam is moving its way back to the top of the TV
+                    nmi = ppu.enterVBlank();
+                    ppu.finishRenderingFrame();
                 }
                 
                 // notify and update the emulator ui

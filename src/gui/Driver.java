@@ -15,17 +15,17 @@ public class Driver {
         
         FileInputStream input = new FileInputStream(args[0]);
         GameRunnable.UIUpdate ui = new GameRunnable.UIUpdate() {
-			@Override
-			public void update(int[] buffer) {
-				frame.updateBuffer(buffer);
-			}
+            @Override
+            public void update(int[] buffer) {
+                frame.updateBuffer(buffer);
+            }
 
             @Override
             public Joypad getJoypad(int player) {
                 return frame.getJoypad();
             }
-		};
-		
+        };
+        
         final GameRunnable nes = new GameRunnable(input, ui);
         
         SwingUtilities.invokeLater(new Runnable() {

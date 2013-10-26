@@ -122,7 +122,7 @@ public class PPU {
     }
 
     public void startRenderingFrame(CPUCycleCounter cycleCounter,
-    								int[] buffer, int[] palette)
+                                    int[] buffer, int[] palette)
     {
         assert this.render == null;
         this.cycleCounter = cycleCounter;

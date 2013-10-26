@@ -71,10 +71,10 @@ public class EmulatorFrame extends JFrame {
     }
     
     public void updateBuffer(int[] buffer) {
-    	WritableRaster r;
-    	r = image.getRaster();
-    	r.setDataElements(0, 0, 256, 240, buffer);
-    	panel.repaint();
+        WritableRaster r;
+        r = image.getRaster();
+        r.setDataElements(0, 0, 256, 240, buffer);
+        panel.repaint();
     }
     
     public Joypad getJoypad() {

@@ -104,11 +104,11 @@ public class AllSuiteA {
 
     @Test
     public void test() {
-    	try {
-    		cpu.runUntilBreak();
-    	} catch (Exception e) {
-    		System.err.println(e);
-    		cpu.printDebug(System.out);
-    	}
+        try {
+            cpu.runUntilBreak();
+        } catch (Exception e) {
+            System.err.println(e);
+            cpu.printDebug(System.out);
+        }
     }
 }
