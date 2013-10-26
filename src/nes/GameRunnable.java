@@ -64,8 +64,19 @@ public class GameRunnable implements Runnable {
         
         mem.addSegment(0x5000, 0x7FFF, new memory.Zero());
         
-        mem.addSegment(0x8000, 0xBFFF, rom.getPRG(0));
-        mem.addSegment(0xC000, 0xFFFF, rom.getPRG(1));
+        int prgCount = rom.getPRGCount();
+        
+        if (prgCount == 1) {
+            machine6502.Memory prg0 = rom.getPRG(0);
+            mem.addSegment(0x8000, 0xBFFF, prg0);
+            mem.addSegment(0xC000, 0xFFFF, prg0);
+        } else if (prgCount == 2) {
+            mem.addSegment(0x8000, 0xBFFF, rom.getPRG(0));
+            mem.addSegment(0xC000, 0xFFFF, rom.getPRG(1));
+        } else {
+            // TODO - support more mappers
+            throw new IllegalStateException();
+        }
         
         CPU cpu = new CPU(new memory.Debug(mem));
         cpu.reset();
