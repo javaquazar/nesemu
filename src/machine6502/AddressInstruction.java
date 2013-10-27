@@ -175,7 +175,7 @@ public class AddressInstruction {
             @Override
             public int operate(CPUState regdata, Memory mem) {
                 int addr = mem.readByte(regdata.pc+1);
-                int new_addr = MemUtils.readShort(mem, addr + regdata.x);
+                int new_addr = MemUtils.readShort(mem, (addr + regdata.x)%0x100);
                 
                 op.operate(regdata, mem, new ReadWriteAddr(mem, new_addr));
                 regdata.pc += 2;
@@ -194,7 +194,7 @@ public class AddressInstruction {
             @Override
             public int operate(CPUState regdata, Memory mem) {
                 int addr = mem.readByte(regdata.pc+1);
-                int new_addr = MemUtils.readShort(mem, addr) + regdata.y;
+                int new_addr = (MemUtils.readShort(mem, addr) + regdata.y);
                 
                 op.operate(regdata, mem, new ReadWriteAddr(mem, new_addr));
                 regdata.pc += 2;

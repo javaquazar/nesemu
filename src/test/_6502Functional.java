@@ -30,7 +30,7 @@ public class _6502Functional {
         
         Segmented mem = new Segmented();
         mem.addSegment(0, 0x5FFF, new memory.RAM(ram));
-        mem.addSegment(0x8000, 0x9000, new Memory() {
+        mem.addSegment(0x8000, 0x8000, new Memory() {
             @Override
             public void writeByte(int addr, int value) {
                 System.out.write(value);
@@ -47,14 +47,24 @@ public class _6502Functional {
                 }
             }
         });
+        mem.addSegment(0x8001, 0xFFFF, new Memory() {
+            @Override
+            public void writeByte(int addr, int value) {
+                throw new RuntimeException(String.format("Invalid write access: %04X = %02X", addr, value));
+            }
+            
+            @Override
+            public int readByte(int addr) {
+                throw new RuntimeException(String.format("Invalid read access: %04X", addr));
+            }
+        });
         CPU cpu = new CPU(mem);
         cpu.reset(romReset);
         
         try {
             cpu.runUntilBreak();
-        } catch (Exception e) {
-            e.printStackTrace();
+        } finally {
+            cpu.printDebug(System.err);
         }
-        cpu.printDebug(System.err);
     }
 }

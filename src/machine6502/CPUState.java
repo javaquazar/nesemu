@@ -92,11 +92,13 @@ public class CPUState {
         other += "Flags: ";
         other += isFlagSet(CPUFlags.N)?"N":"n";
         other += isFlagSet(CPUFlags.V)?"V":"v";
+        other += isFlagSet(CPUFlags.RESERVED)?"-":"_";
         other += isFlagSet(CPUFlags.B)?"B":"b";
         other += isFlagSet(CPUFlags.D)?"D":"d";
         other += isFlagSet(CPUFlags.I)?"I":"i";
         other += isFlagSet(CPUFlags.Z)?"Z":"z";
         other += isFlagSet(CPUFlags.C)?"C":"c";
+        other += String.format(" (%02X)", flags);
         other += "\n";
         
         return registers + other;

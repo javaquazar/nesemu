@@ -27,6 +27,7 @@ public class CPU {
     public CPU(Memory mem) {
         this.instTable = new InstructionTable();
         this.regdata = new CPUState();
+        regdata.flags = 0x30;
         this.mem = mem;
     }
     

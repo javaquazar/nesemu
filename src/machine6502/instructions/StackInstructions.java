@@ -68,7 +68,8 @@ public class StackInstructions {
         insts[0x28] = new Instruction() {
             @Override
             public int operate(CPUState regdata, Memory mem) {
-                regdata.flags = CPUUtils.pullByte(regdata, mem);
+                // always set the reserved and break flags
+                regdata.flags = CPUUtils.pullByte(regdata, mem) | 0x30;
                 
                 regdata.pc += 1;
                 return 4;

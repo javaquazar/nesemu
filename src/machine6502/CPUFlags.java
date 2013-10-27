@@ -17,6 +17,7 @@ package machine6502;
 public class CPUFlags {
     public static final int N = 1<<7;
     public static final int V = 1<<6;
+    public static final int RESERVED = 1<<5;
     public static final int B = 1<<4;
     public static final int D = 1<<3;
     public static final int I = 1<<2;
