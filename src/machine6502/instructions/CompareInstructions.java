@@ -1,6 +1,7 @@
 package machine6502.instructions;
 
 import static machine6502.AddressInstruction.*;
+import machine6502.ByteUtils;
 import machine6502.CPUFlags;
 import machine6502.CPUState;
 import machine6502.Instruction;
@@ -63,12 +64,10 @@ public class CompareInstructions {
     }
     
     private static void flagCompare(CPUState regdata, int a, int b) {
-        /* a < b: S=(a>=0x80)  Z=0  C=0
-         * a = b: S=0          Z=1  C=1
-         * a > b: S=(a>=0x80)  Z=0  C=1
-        */
+        // comparison is between unsigned numbers
+        int src = a - b;
         
-        regdata.setFlag(CPUFlags.N, (a != b) && (a >= 0x80));
+        regdata.setFlag(CPUFlags.N, (src & 0x80) != 0);
         regdata.setFlag(CPUFlags.Z, a == b);
         regdata.setFlag(CPUFlags.C, a >= b);
     }

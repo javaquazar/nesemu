@@ -35,6 +35,10 @@ public class CPU {
         this.regdata.pc = jump_addr;
     }
     
+    public void reset(int resetAddr) {
+        this.regdata.pc = resetAddr;
+    }
+
     /**
      * Non-Maskable Interrupt
      * - must be dealt with (can't be masked like IRQ)
