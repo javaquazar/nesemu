@@ -152,7 +152,7 @@ public class RepeatingReleasedEventsFixer implements AWTEventListener {
         }
  
         @Override
-        public void actionPerformed(@SuppressWarnings ("unused") ActionEvent e) {
+        public void actionPerformed(ActionEvent e) {
             assert assertEDT();
             // ?: Are we already cancelled?
             // (Judging by Timer and TimerQueue code, we can theoretically be raced to be posted onto EDT by TimerQueue,
@@ -186,8 +186,9 @@ public class RepeatingReleasedEventsFixer implements AWTEventListener {
     /**
      * Dead simple extension of {@link KeyEvent} that implements {@link Reposted}.
      */
+    @SuppressWarnings("serial")
     public static class RepostedKeyEvent extends KeyEvent implements Reposted {
-        public RepostedKeyEvent(@SuppressWarnings ("hiding") Component source, @SuppressWarnings ("hiding") int id,
+        public RepostedKeyEvent(Component source, int id,
                 long when, int modifiers, int keyCode, char keyChar, int keyLocation) {
             super(source, id, when, modifiers, keyCode, keyChar, keyLocation);
         }
