@@ -1,5 +1,6 @@
 package gui;
 
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -68,6 +69,9 @@ public class EmulatorFrame extends JFrame {
                 }
             }
         });
+        
+        panel.setPreferredSize(new Dimension(256, 240));
+        this.pack();
     }
     
     public void updateBuffer(int[] buffer) {
