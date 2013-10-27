@@ -38,6 +38,7 @@ public class PPU {
 
     private CPUCycleCounter cycleCounter;
     private int lastCPUCycles;
+    private int oamAddr;
     
     public PPU(boolean horizontalMirroring) {
         this.renderData = new PPURenderData();
@@ -150,6 +151,8 @@ public class PPU {
     }
     
     public int readStatus() {
+        advance();
+        
         boolean vblank = vblankFlag;
         
         vblankFlag = false;
@@ -223,5 +226,19 @@ public class PPU {
         for (int i = 0; i < VRAM_SIZE; i++) {
             out.write(vram.readByte(i));
         }
+    }
+
+    public int readOAMData() {
+        // XXX - does reading increment oamAddr?
+        return renderData.sprram[oamAddr];
+    }
+
+    public void writeOAMAddr(int value) {
+        this.oamAddr = value;
+    }
+
+    public void writeOAMData(int value) {
+        renderData.sprram[oamAddr] = value;
+        oamAddr = (oamAddr+1) % 256;
     }
 }

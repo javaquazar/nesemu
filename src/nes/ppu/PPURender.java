@@ -9,6 +9,17 @@ public class PPURender {
     private int currentScanlineCycle;
     private int scroll_x, scroll_y;
     
+    private static class Sprite {
+        public int x, y;
+        public int tile;
+        public boolean vertFlip, horzFlip;
+        public boolean behind;
+        public int color;
+    }
+    
+    private Sprite[] scanlineSprite;
+    private int scanlineSpriteCount;
+    
     public PPURender(PPURenderData data, int[] buffer, int[] palette) {
         this.renderData = data;
         
@@ -19,6 +30,54 @@ public class PPURender {
         
         this.currentScanline = 0;
         this.currentScanlineCycle = 0;
+        this.scanlineSprite = new Sprite[8];
+        
+        // create Sprite objects once
+        for (int i = 0; i < 8; i++) {
+            this.scanlineSprite[i] = new Sprite();
+        }
+    }
+    
+    private void readSprite(int id, Sprite spr) {
+        int attr = renderData.sprram[id*4+2];
+
+        spr.x    = renderData.sprram[id*4+3];
+        spr.y    = renderData.sprram[id*4+0]+1;
+        spr.tile = renderData.sprram[id*4+1];
+        
+        spr.vertFlip = (attr & 0x80) != 0;
+        spr.horzFlip = (attr & 0x40) != 0;
+        spr.behind   = (attr & 0x20) != 0;
+        spr.color    = attr & 0x03;
+    }
+    
+    private boolean calculateSpritesOnScanline(int y) {
+        Sprite spr = new Sprite();
+        int spr_index = 0;
+        boolean morethan8 = false;
+        
+        // calculate sprites on scanline
+        for (int i = 0; i < 64; i++) {
+            readSprite(i, spr);
+            int spr_top = spr.y;
+            int spr_bot = spr.y + 7;
+            
+            // check if sprite is on scanline
+            if (y >= spr_top && y <= spr_bot) {
+                if (spr_index == 8) {
+                    morethan8 = true;
+                    // don't process any more sprites
+                    break;
+                }
+                
+                readSprite(i, scanlineSprite[spr_index]);
+                spr_index++;
+            }
+        }
+        
+        this.scanlineSpriteCount = spr_index;
+        
+        return morethan8;
     }
 
     public void advance(int ppuCycles) {
@@ -27,15 +86,20 @@ public class PPURender {
         // 1..240 - draw to screen
         // 241 - dummy
         
-        // vertial+horizontal scroll counters are updated at cc 256
-        
-        
+        // vertical+horizontal scroll counters are updated at cc 256
         
         while (ppuCycles > 0) {
+            int sprTable = renderData.pcr1.getSpritePatternTable();
+            int bgTable = renderData.pcr1.getBackgroundPatternTable();
+            
             if (currentScanline < 240 && currentScanlineCycle < 256) {
                 int x, y;
                 x = currentScanlineCycle;
                 y = currentScanline;
+                
+                if (currentScanlineCycle == 0) {
+                    calculateSpritesOnScanline(currentScanline);
+                }
                 
                 int xp, yp;
                 xp = x % 8;
@@ -43,7 +107,11 @@ public class PPURender {
                 
                 int paletteGroup = getNametablePaletteGroup(x/8, y/8);
                 int pattern = getNametablePattern(x/8, y/8);
-                int patternPixel = getPatternPixel(pattern, xp, yp);
+                int patternPixel = getPatternPixel(bgTable, pattern, xp, yp);
+                
+                /* TODO - set the sprite #0 flag if a non-0 bg pixel
+                 * overlaps a non-0 sprite #0 pixel
+                 */
                 
                 int color;
                 if (patternPixel == 0) {
@@ -51,6 +119,30 @@ public class PPURender {
                 } else {
                     color = renderData.palette[patternPixel-1 + paletteGroup*3];
                 }
+
+                for (int i = scanlineSpriteCount-1; i >= 0; i--) {
+                    Sprite spr = scanlineSprite[i];
+                    
+                    if (x >= spr.x && x <= spr.x+7) {
+                        int sprX = x - spr.x;
+                        int sprY = y - spr.y;
+                        
+                        if (spr.horzFlip) {
+                            sprX = 7 - sprX;
+                        }
+                        if (spr.vertFlip) {
+                            sprY = 7 - sprY;
+                        }
+                        // rendering within sprite
+                        int sprPixel = getPatternPixel(sprTable, spr.tile, sprX, sprY);
+                        
+                        if (sprPixel != 0) {
+                            color = renderData.palette[sprPixel-1 + spr.color*3 + 12];
+                        }
+                    }
+                }
+                
+                
                 int value = palette[color];
                 buffer[currentScanline*256 + currentScanlineCycle] = value;
             }
@@ -59,10 +151,9 @@ public class PPURender {
         }
     }
     
-    private int getPatternPixel(int pattern, int x, int y) {
-        int bg_off = renderData.pcr1.getBackgroundPatternTable();
-        int lo_y = renderData.patternTableMem.readByte(bg_off + pattern*16 + y);
-        int hi_y = renderData.patternTableMem.readByte(bg_off + pattern*16 + y + 8);
+    private int getPatternPixel(int tableAddr, int pattern, int x, int y) {
+        int lo_y = renderData.patternTableMem.readByte(tableAddr + pattern*16 + y);
+        int hi_y = renderData.patternTableMem.readByte(tableAddr + pattern*16 + y + 8);
         
         x = 7-x;
         

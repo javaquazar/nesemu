@@ -27,7 +27,7 @@ public class RegistersPPUMemory implements Memory {
         case PPUSTATUS:
             return ppu.readStatus();
         case OAMDATA:
-            break;
+            return ppu.readOAMData();
         case PPUDATA:
             return ppu.readPPUData();
         }
@@ -48,8 +48,10 @@ public class RegistersPPUMemory implements Memory {
             ppu.writePCR2(value);
             break;
         case OAMADDR:
+            ppu.writeOAMAddr(value);
             break;
         case OAMDATA:
+            ppu.writeOAMData(value);
             break;
         case PPUSCROLL:
             ppu.writePPUScroll(value);

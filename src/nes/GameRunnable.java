@@ -132,6 +132,7 @@ public class GameRunnable implements Runnable {
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         } catch (Exception e) {
+            e.printStackTrace();
             cpu.printDebug(System.out);
         }
     }
