@@ -1,7 +1,6 @@
 package machine6502.instructions;
 
 import static machine6502.AddressInstruction.*;
-import machine6502.ByteUtils;
 import machine6502.CPUFlags;
 import machine6502.CPUState;
 import machine6502.Instruction;

@@ -3,6 +3,8 @@ package nes;
 import java.io.IOException;
 import java.io.InputStream;
 
+import nes.mappers.INESMapperList;
+import nes.mappers.Mapper;
 import nes.ppu.PPU;
 import machine6502.CPU;
 import machine6502.CPUCycleCounter;
@@ -33,10 +35,14 @@ public class GameRunnable implements Runnable {
     
     private nes.ROM rom;
     private UIUpdate ui;
+    private Mapper mapper;
     
     public GameRunnable(InputStream input, UIUpdate ui) throws IOException {
         this.rom = new nes.ROM(input);
         this.ui = ui;
+
+        INESMapperList mappers = new INESMapperList();
+        this.mapper = mappers.getMapper(rom.getMapper());
     }
 
     @Override
@@ -47,8 +53,6 @@ public class GameRunnable implements Runnable {
         joypad1 = new IndirectJoypad();
         
         PPU ppu = new PPU(false);
-        
-        ppu.setPatternTable(rom.getCHR(0));
 
         memory.Segmented mem = new memory.Segmented();
         memory.RAM ram = new memory.RAM(0x800);
@@ -61,22 +65,10 @@ public class GameRunnable implements Runnable {
         
         mem.addSegment(0x2000, 0x3FFF, new memory.Mirrored(8, registersPPU));
         mem.addSegment(0x4000, 0x401F, registers2A03);
-        
         mem.addSegment(0x5000, 0x7FFF, new memory.Zero());
+        mem.addSegment(0x8000, 0xFFFF, mapper.getPRGMemory(rom));
         
-        int prgCount = rom.getPRGCount();
-        
-        if (prgCount == 1) {
-            machine6502.Memory prg0 = rom.getPRG(0);
-            mem.addSegment(0x8000, 0xBFFF, prg0);
-            mem.addSegment(0xC000, 0xFFFF, prg0);
-        } else if (prgCount == 2) {
-            mem.addSegment(0x8000, 0xBFFF, rom.getPRG(0));
-            mem.addSegment(0xC000, 0xFFFF, rom.getPRG(1));
-        } else {
-            // TODO - support more mappers
-            throw new IllegalStateException();
-        }
+        ppu.setPatternTable(mapper.getPPUPatternMemory(rom));
         
         CPU cpu = new CPU(new memory.Debug(mem));
         cpu.reset();

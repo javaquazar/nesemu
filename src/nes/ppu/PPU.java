@@ -114,7 +114,7 @@ public class PPU {
         renderData.nametable[3] = nt1;
     }
     
-    private void advance() {
+    public void advance() {
         if (render != null) {
             int cpuCycles = cycleCounter.getCycles();
             render.advance((cpuCycles - this.lastCPUCycles) * 15/5);

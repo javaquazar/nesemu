@@ -9,6 +9,7 @@ import machine6502.Memory;
 public class ROM {
     private byte[][] prg_rom;
     private byte[][] chr_rom;
+    private int mapper;
     
     public ROM(InputStream input) throws IOException {
         int prg_count, chr_count;
@@ -20,9 +21,13 @@ public class ROM {
         // TODO - other verification
         prg_count = header[4];
         chr_count = header[5];
+        int flag6 = header[6];
+        int flag7 = header[7];
         
         prg_rom = new byte[prg_count][];
         chr_rom = new byte[chr_count][];
+        
+        this.mapper = (flag7&0xF0) | (flag6>>4);
         
         // PRG ROM
         for (int i = 0; i < prg_count; i++) {
@@ -57,5 +62,9 @@ public class ROM {
     
     public Memory getCHR(int bank) {
         return new memory.ByteConstant(chr_rom[bank]);
+    }
+    
+    public int getMapper() {
+        return this.mapper;
     }
 }
