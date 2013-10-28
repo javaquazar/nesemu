@@ -34,4 +34,8 @@ class PCR1 {
     public void setRegister(int value) {
         reg = value;
     }
+
+    public void setNameTable(int nt) {
+        reg = (reg & ~0x03) | nt;
+    }
 }

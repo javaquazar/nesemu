@@ -166,7 +166,7 @@ public class PPURender {
                     scroll_y = renderData.getCoarseYScroll()*TILE_SIZE + renderData.getFineYScroll();
                     
                     if ((nt & 1) != 0) {
-                        //scroll_x += SCREEN_W;
+                        scroll_x += SCREEN_W;
                     }
                     if ((nt & 2) == 0) {
                         scroll_y += SCREEN_H;

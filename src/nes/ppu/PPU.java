@@ -158,6 +158,11 @@ public class PPU {
         vblankFlag = false;
         vramAddrLatch = false;
         
+        if (!renderData.pcr1.isNMIVBlankOn()) {
+            // XXX - only do during HBlank
+            renderData.pcr1.setNameTable(0);
+        }
+        
         return (vblank ? 0x80:0) | (renderData.sprite0Occurance ? 0x40:0) |
                 (renderData.moreThan8 ? 0x20:0);
     }
