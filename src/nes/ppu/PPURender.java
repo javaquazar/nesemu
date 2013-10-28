@@ -19,6 +19,7 @@ public class PPURender {
     
     private Sprite[] scanlineSprite;
     private int scanlineSpriteCount;
+    private boolean scanlineHasSprite0;
     
     public PPURender(PPURenderData data, int[] buffer, int[] palette) {
         this.renderData = data;
@@ -56,6 +57,8 @@ public class PPURender {
         int spr_index = 0;
         boolean morethan8 = false;
         
+        this.scanlineHasSprite0 = false;
+        
         // calculate sprites on scanline
         for (int i = 0; i < 64; i++) {
             readSprite(i, spr);
@@ -68,6 +71,10 @@ public class PPURender {
                     morethan8 = true;
                     // don't process any more sprites
                     break;
+                }
+                
+                if (i == 0) {
+                    this.scanlineHasSprite0 = true;
                 }
                 
                 readSprite(i, scanlineSprite[spr_index]);
@@ -105,20 +112,14 @@ public class PPURender {
                 xp = x % 8;
                 yp = y % 8;
                 
-                int paletteGroup = getNametablePaletteGroup(x/8, y/8);
                 int pattern = getNametablePattern(x/8, y/8);
-                int patternPixel = getPatternPixel(bgTable, pattern, xp, yp);
                 
-                /* TODO - set the sprite #0 flag if a non-0 bg pixel
-                 * overlaps a non-0 sprite #0 pixel
-                 */
+                int bgPixel;
                 
-                int color;
-                if (patternPixel == 0) {
-                    color = renderData.paletteBG;
-                } else {
-                    color = renderData.palette[patternPixel-1 + paletteGroup*3];
-                }
+                int palGroup = getNametablePaletteGroup(x/8, y/8);
+                bgPixel = getPatternPixel(bgTable, pattern, xp, yp);
+                
+                int pixel = bgPixel;
 
                 for (int i = scanlineSpriteCount-1; i >= 0; i--) {
                     Sprite spr = scanlineSprite[i];
@@ -135,13 +136,30 @@ public class PPURender {
                         }
                         // rendering within sprite
                         int sprPixel = getPatternPixel(sprTable, spr.tile, sprX, sprY);
+
+                        if (!spr.behind || (spr.behind && bgPixel == 0)) {
+                            if (sprPixel != 0) {
+                                palGroup = spr.color+4;
+                                pixel = sprPixel;
+                            }
+                        }
                         
-                        if (sprPixel != 0) {
-                            color = renderData.palette[sprPixel-1 + spr.color*3 + 12];
+                        if (scanlineHasSprite0 && i == 0 && spr.behind &&
+                                bgPixel != 0 && sprPixel != 0)
+                        {
+                            // turn on sprite #0 flag
+                            renderData.sprite0Occurance = true;
                         }
                     }
                 }
                 
+                int color;
+                
+                if (pixel == 0) {
+                    color = renderData.paletteBG;
+                } else {
+                    color = renderData.palette[pixel-1 + palGroup*3];
+                }
                 
                 int value = palette[color];
                 buffer[currentScanline*256 + currentScanlineCycle] = value;
