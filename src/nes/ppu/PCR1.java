@@ -2,15 +2,9 @@ package nes.ppu;
 
 class PCR1 {
     private int reg;
-    
+
     public int getNameTable() {
-        switch (reg & 0x03) {
-        case 0: return 0x2000;
-        case 1: return 0x2400;
-        case 2: return 0x2800;
-        case 3: return 0x2C00;
-        default: throw new IllegalStateException();
-        }
+        return reg & 0x03;
     }
     
     public int getVRAMIncrement() {

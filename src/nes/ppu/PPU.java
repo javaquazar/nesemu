@@ -158,23 +158,27 @@ public class PPU {
         vblankFlag = false;
         vramAddrLatch = false;
         
-        return (vblank ? 0x80:0) | (renderData.sprite0Occurance ? 0x40:0);
+        return (vblank ? 0x80:0) | (renderData.sprite0Occurance ? 0x40:0) |
+                (renderData.moreThan8 ? 0x20:0);
     }
     
     public void writePPUScroll(int value) {
         advance();
         
         if (!vramAddrLatch) {
-            // YY-- -yyy
-            int YY = value >> 6;
+            // XXXX Xxxx
+            int XXXXX = value >> 3;
+            int xxx = value & 0x07;
+
+            renderData.setCoarseXScroll(XXXXX);
+            renderData.fineXScroll = xxx;
+        } else {
+            // YYYY Yyyy
+            int YYYYY = value >> 3;
             int yyy = value & 0x07;
             
-            renderData.vramAddr = (renderData.vramAddr & ~0x7300) |
-                                  (YY<<8) | (yyy<<12);
-        } else {
-            // ---- -xxx
-            int xxx = value & 0x07;
-            renderData.fineXScroll = xxx;
+            renderData.setCoarseYScroll(YYYYY);
+            renderData.setFineYScroll(yyy);
         }
         
         // flip-flop the latch
@@ -186,10 +190,10 @@ public class PPU {
         
         if (!vramAddrLatch) {
             // hi byte
-            renderData.vramAddr = (value<<8) | (renderData.vramAddr & 0x00FF);
+            renderData.setVRAMInt(8, 8, value & 0x3F);
         } else {
             // lo byte
-            renderData.vramAddr = (renderData.vramAddr & 0xFF00) | value;
+            renderData.setVRAMInt(8, 0, value);
         }
         
         // flip-flop the latch
@@ -205,6 +209,8 @@ public class PPU {
     }
 
     public int readPPUData() {
+        advance();
+        
         int value = vram.readByte(renderData.vramAddr);
         renderData.vramAddr = (renderData.vramAddr +
                                renderData.pcr1.getVRAMIncrement()) & 0xFFFF;
@@ -238,6 +244,7 @@ public class PPU {
     }
 
     public void writeOAMData(int value) {
+        advance();
         renderData.sprram[oamAddr] = value;
         oamAddr = (oamAddr+1) % 256;
     }
