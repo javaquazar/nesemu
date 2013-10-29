@@ -7,61 +7,61 @@ import java.io.InputStream;
 import machine6502.Memory;
 
 public class ROM {
-    private byte[][] prg_rom;
-    private byte[][] chr_rom;
+    // PRG ROM (16KiB)
+    // CHR ROM (8KiB)
+    private static final int PRG_SIZE = 0x4000;
+    private static final int CHR_SIZE = 0x2000;
+    
+    private byte[] romData;
+    private Memory romMem;
+    private int prgCount, chrCount;
     private int mapper;
     
     public ROM(InputStream input) throws IOException {
-        int prg_count, chr_count;
-        
         // 16-byte iNES header
         byte[] header = new byte[0x10];
         input.read(header);
         
         // TODO - other verification
-        prg_count = header[4];
-        chr_count = header[5];
+        prgCount = header[4];
+        chrCount = header[5];
         int flag6 = header[6];
         int flag7 = header[7];
+        int romDataSize = prgCount*PRG_SIZE + chrCount*CHR_SIZE;
         
-        prg_rom = new byte[prg_count][];
-        chr_rom = new byte[chr_count][];
+        romData = new byte[romDataSize];
+        if (input.read(romData) != romDataSize) {
+            throw new EOFException();
+        }
+        
+        romMem = new memory.ByteConstant(romData);
         
         this.mapper = (flag7&0xF0) | (flag6>>4);
-        
-        // PRG ROM
-        for (int i = 0; i < prg_count; i++) {
-            prg_rom[i] = new byte[0x4000];
-            int r = input.read(prg_rom[i]);
-            if (r != 0x4000) {
-                throw new EOFException();
-            }
-        }
-
-        // CHR ROM
-        for (int i = 0; i < chr_count; i++) {
-            chr_rom[i] = new byte[0x2000];
-            int r = input.read(chr_rom[i]);
-            if (r != 0x2000) {
-                throw new EOFException();
-            }
-        }
     }
     
     public int getPRGCount() {
-        return prg_rom.length;
+        return prgCount;
     }
     
     public int getCHRCount() {
-        return chr_rom.length;
+        return chrCount;
     }
     
     public Memory getPRG(int bank) {
-        return new memory.ByteConstant(prg_rom[bank]);
+        return new memory.Split(romMem, bank*PRG_SIZE, PRG_SIZE);
     }
     
     public Memory getCHR(int bank) {
-        return new memory.ByteConstant(chr_rom[bank]);
+        return new memory.Split(romMem, prgCount*PRG_SIZE + bank*CHR_SIZE, CHR_SIZE);
+    }
+    
+    public Memory getROMRange(int lo, int length) {
+        return new memory.Split(romMem, lo, length);
+    }
+    
+    public int getROMLength() {
+        // not including the header
+        return romData.length;
     }
     
     public int getMapper() {

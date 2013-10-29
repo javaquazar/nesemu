@@ -35,14 +35,10 @@ public class GameRunnable implements Runnable {
     
     private nes.ROM rom;
     private UIUpdate ui;
-    private Mapper mapper;
     
     public GameRunnable(InputStream input, UIUpdate ui) throws IOException {
         this.rom = new nes.ROM(input);
         this.ui = ui;
-
-        INESMapperList mappers = new INESMapperList();
-        this.mapper = mappers.getMapper(rom.getMapper());
     }
 
     @Override
@@ -51,10 +47,14 @@ public class GameRunnable implements Runnable {
         
         IndirectJoypad joypad1;
         joypad1 = new IndirectJoypad();
-        
-        PPU ppu = new PPU(false);
 
         memory.Segmented mem = new memory.Segmented();
+        PPU ppu = new PPU(false);
+        CPU cpu = new CPU(new memory.Debug(mem));
+
+        INESMapperList mappers = new INESMapperList();
+        Mapper mapper = mappers.getMapper(rom, cpu, ppu);
+
         memory.RAM ram = new memory.RAM(0x800);
         RegistersPPUMemory registersPPU = new RegistersPPUMemory(ppu);
         Registers2A03Memory registers2A03;
@@ -62,15 +62,14 @@ public class GameRunnable implements Runnable {
         registers2A03 = new Registers2A03Memory(mem, joypad1, null);
         
         mem.addSegment(0x0000, 0x1FFF, new memory.Mirrored(0x800, ram));
-        
         mem.addSegment(0x2000, 0x3FFF, new memory.Mirrored(8, registersPPU));
         mem.addSegment(0x4000, 0x401F, registers2A03);
-        mem.addSegment(0x5000, 0x7FFF, new memory.Zero());
-        mem.addSegment(0x8000, 0xFFFF, mapper.getPRGMemory(rom));
+        mem.addSegment(0x4020, 0x5FFF, new memory.Zero());
+        mem.addSegment(0x6000, 0x7FFF, mapper.getSRAMMemory());
+        mem.addSegment(0x8000, 0xFFFF, mapper.getPRGMemory());
         
-        ppu.setPatternTable(mapper.getPPUPatternMemory(rom));
+        ppu.setPatternTable(mapper.getCHRMemory());
         
-        CPU cpu = new CPU(new memory.Debug(mem));
         cpu.reset();
         
         int[] renderBuffer = new int[256*240];

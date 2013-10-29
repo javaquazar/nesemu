@@ -4,13 +4,20 @@ import nes.ROM;
 import machine6502.Memory;
 import memory.Segmented;
 
-public class NROM extends Mapper {
-    public NROM() {
-        super("NROM");
+public class NROM implements Mapper {
+    private ROM rom;
+
+    public NROM(ROM rom) {
+        this.rom = rom;
     }
 
     @Override
-    public Memory getPRGMemory(ROM rom) {
+    public Memory getSRAMMemory() {
+        return new memory.Zero();
+    }
+
+    @Override
+    public Memory getPRGMemory() {
         Segmented mem = new Segmented();
         
         int prgCount = rom.getPRGCount();
@@ -30,7 +37,7 @@ public class NROM extends Mapper {
     }
 
     @Override
-    public Memory getPPUPatternMemory(ROM rom) {
+    public Memory getCHRMemory() {
         return rom.getCHR(0);
     }
 }

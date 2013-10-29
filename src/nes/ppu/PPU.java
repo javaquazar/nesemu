@@ -94,7 +94,7 @@ public class PPU {
         renderData.patternTableMem = mem;
     }
     
-    private void setNametableMirroring(boolean horizontal) {
+    public void setNametableMirroring(boolean horizontal) {
         memNametables.setNametableRAM(0, nt0);
         renderData.nametable[0] = nt0;
         

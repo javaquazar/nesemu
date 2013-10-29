@@ -159,12 +159,12 @@ public class CPU {
         if (inst != null) {
             return inst.operate(regdata, mem);
         } else {
-            invalidOpcode();
+            invalidOpcode(opcode);
             return 0;
         }
     }
 
-    private void invalidOpcode() {
-        throw new IllegalStateException("Invalid opcode");
+    private void invalidOpcode(int opcode) {
+        throw new IllegalStateException(String.format("Invalid opcode (%02X)", opcode));
     }
 }
