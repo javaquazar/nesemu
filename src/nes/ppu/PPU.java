@@ -58,9 +58,9 @@ public class PPU {
             
             @Override
             public void writeByte(int addr, int value) {
-                if (addr % 4 == 0) {
+                if (addr % 16 == 0) {
                     renderData.paletteBG = value;
-                } else {
+                } else if (addr % 4 != 0){
                     renderData.palette[addr - addr/4 - 1] = value;
                 }
             }
