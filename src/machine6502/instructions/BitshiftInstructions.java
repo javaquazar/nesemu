@@ -54,7 +54,7 @@ public class BitshiftInstructions {
             public void operate(CPUState regdata, Memory mem, ReadWrite rw) {
                 int old_value = rw.read();
                 boolean carry = (old_value & 0x01) != 0;
-                int value = (old_value >> 1) & 0xFF;
+                int value = old_value >> 1;
                 
                 regdata.flagsNZ(value);
                 regdata.setFlag(CPUFlags.C, carry);
@@ -86,7 +86,7 @@ public class BitshiftInstructions {
             public void operate(CPUState regdata, Memory mem, ReadWrite rw) {
                 int old_value = rw.read();
                 boolean carry = (old_value & 0x01) != 0;
-                int value = (old_value >> 1) & 0xFF;
+                int value = old_value >> 1;
                 
                 if (regdata.isFlagSet(CPUFlags.C)) {
                     value |= 0x80;

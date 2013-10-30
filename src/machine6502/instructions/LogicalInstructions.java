@@ -53,7 +53,7 @@ public class LogicalInstructions {
                     value++;
                 }
                 
-                boolean carry = value >= 0x100;
+                boolean carry = (value & 0x100) != 0;
                 value &= 0xFF;
                 boolean overflow = (((regdata.a ^ old_value) & 0x80) == 0) &&
                                    (((regdata.a ^ value)     & 0x80) != 0);
@@ -68,16 +68,17 @@ public class LogicalInstructions {
         sbc_op = new Operation() {
             @Override
             public void operate(CPUState regdata, Memory mem, ReadWrite rw) {
-                int old_value = rw.read();
-                int value = regdata.a - old_value;
+                // just like add, but with all the input bits flipped
+                int old_value = rw.read()^0xFF;
+                int value = regdata.a + old_value;
                 
-                if (!regdata.isFlagSet(CPUFlags.C)) {
-                    value--;
+                if (regdata.isFlagSet(CPUFlags.C)) {
+                    value++;
                 }
                 
-                boolean carry = value >= 0;
+                boolean carry = (value & 0x100) != 0;
                 value &= 0xFF;
-                boolean overflow = (((regdata.a ^ old_value) & 0x80) != 0) &&
+                boolean overflow = (((regdata.a ^ old_value) & 0x80) == 0) &&
                                    (((regdata.a ^ value)     & 0x80) != 0);
                 
                 regdata.a = value;

@@ -4,13 +4,13 @@ public class CPUUtils {
     private static final int STACK_PAGE = 0x100;
     
     public static int pullByte(CPUState regdata, Memory mem) {
-        regdata.sp = (regdata.sp+1)%0x100;
+        regdata.sp = (regdata.sp+1) & 0xFF;
         return mem.readByte(STACK_PAGE + regdata.sp);
     }
     
     public static void pushByte(CPUState regdata, Memory mem, int v) {
         mem.writeByte(STACK_PAGE + regdata.sp, v);
-        regdata.sp = (regdata.sp-1 + 0x100) % 0x100;
+        regdata.sp = (regdata.sp-1) & 0xFF;
     }
     
     public static int pullShort(CPUState regdata, Memory mem) {

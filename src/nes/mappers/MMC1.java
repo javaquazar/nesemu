@@ -25,18 +25,18 @@ public class MMC1 implements Mapper {
         chrSegmented = new FixedSegmented(2, 0x1000);
         
         // XXX
-        prgSegmented.setSegment(0, rom.getPRG(rom.getPRGCount()-5));
+        prgSegmented.setSegment(0, rom.getPRG(rom.getPRGCount()-2));
         prgSegmented.setSegment(1, rom.getPRG(rom.getPRGCount()-1));
-        setCHRBank(0, 0);
-        setCHRBank(1, 1);
+        setCHRBank0(0);
+        setCHRBank1(1);
         
         this.prg = new Memory() {
             @Override
             public void writeByte(int addr, int value) {
-                boolean clear = (addr & 0x80) != 0;
+                boolean clear = (value & 0x80) != 0;
                 
                 if (!clear) {
-                    int bit = addr & 0x01;
+                    int bit = value & 0x01;
                     shiftIntoRegister(bit, addr);
                 } else {
                     clearRegister();
@@ -48,6 +48,8 @@ public class MMC1 implements Mapper {
                 return prgSegmented.readByte(addr);
             }
         };
+        
+        clearRegister();
     }
 
     @Override
@@ -82,8 +84,8 @@ public class MMC1 implements Mapper {
             
             switch (select) {
             case 0: setControl(r); break;
-            case 1: setCHRBank(r, 0); break;
-            case 2: setCHRBank(r, 1); break;
+            case 1: setCHRBank0(r); break;
+            case 2: setCHRBank1(r); break;
             case 3: setPRGBank(r); break;
             default: throw new IllegalStateException();
             }
@@ -95,28 +97,43 @@ public class MMC1 implements Mapper {
     private void setControl(int r) {
         this.ppu.advance();
         
-        int mirroring = r & 0x03;
+        // TODO - set mirroring
+        //int mirroring = r & 0x03;
         this.prgROMBankMode = (r >> 2)&0x03;
         this.chrROMBankMode = (r >> 4)&0x01;
         
         //this.ppu.setNametableMirroring(horizontal);
     }
+    
+    private static int off = 16;
 
-    private void setCHRBank(int r, int bankNo) {
+    private void setCHRBank0(int r) {
         this.ppu.advance();
+        r += off;
         
-        if (chrROMBankMode == 0) {
+        if (chrROMBankMode == 1) {
             // switch 4KiB
-            Memory m = rom.getROMRange(r*0x1000, 0x1000);
+            Memory m = rom.getROMBank(r, 0x1000);
             
-            chrSegmented.setSegment(bankNo, m);
+            chrSegmented.setSegment(0, m);
         } else {
             // switch 8Kib
-            if (bankNo == 0) {
-                int b = r&~0x01;
-                chrSegmented.setSegment(0, rom.getROMRange(b*0x1000, 0x2000));
-                chrSegmented.setSegment(1, rom.getROMRange((b+1)*0x1000, 0x2000));
-            }
+            int b = r & ~0x01;
+            chrSegmented.setSegment(0, rom.getROMBank(b, 0x1000));
+            chrSegmented.setSegment(1, rom.getROMBank(b, 0x1000));
+        }
+    }
+
+    private void setCHRBank1(int r) {
+        this.ppu.advance();
+
+        r += off;
+        
+        if (chrROMBankMode == 1) {
+            // switch 4KiB
+            Memory m = rom.getROMBank(r, 0x1000);
+            
+            chrSegmented.setSegment(1, m);
         }
     }
 

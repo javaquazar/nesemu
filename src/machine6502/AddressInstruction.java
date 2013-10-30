@@ -195,14 +195,17 @@ public class AddressInstruction {
             public int operate(CPUState regdata, Memory mem) {
                 int addr = mem.readByte(regdata.pc+1);
                 int new_addr = (MemUtils.readShort(mem, addr) + regdata.y);
+                boolean crosses = MemUtils.crossesPageBoundary(new_addr, new_addr-regdata.y);
+                
+                if (crosses) {
+                    // peek here for some reason
+                    mem.readByte(new_addr - 0x100);
+                }
                 
                 op.operate(regdata, mem, new ReadWriteAddr(mem, new_addr));
                 regdata.pc += 2;
                 
                 if (pageCycle) {
-                    boolean crosses;
-                    crosses = MemUtils.crossesPageBoundary(addr, new_addr);
-                    
                     return crosses ? cycles+1:cycles;
                 } else {
                     return cycles;

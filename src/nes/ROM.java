@@ -56,12 +56,24 @@ public class ROM {
     }
     
     public Memory getROMRange(int lo, int length) {
+        if (lo + length > romData.length) {
+            throw new IllegalArgumentException("Range is too high");
+        }
+        
         return new memory.Split(romMem, lo, length);
+    }
+    
+    public Memory getROMBank(int bank, int bankLength) {
+        return getROMRange(bank*bankLength, bankLength);
     }
     
     public int getROMLength() {
         // not including the header
         return romData.length;
+    }
+    
+    public int getROMBanks(int bankLength) {
+        return romData.length / bankLength;
     }
     
     public int getMapper() {

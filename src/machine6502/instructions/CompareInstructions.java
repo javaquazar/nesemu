@@ -63,11 +63,9 @@ public class CompareInstructions {
     }
     
     private static void flagCompare(CPUState regdata, int a, int b) {
-        // comparison is between unsigned numbers
         int src = a - b;
         
-        regdata.setFlag(CPUFlags.N, (src & 0x80) != 0);
-        regdata.setFlag(CPUFlags.Z, a == b);
-        regdata.setFlag(CPUFlags.C, a >= b);
+        regdata.flagsNZ(src&0xFF);
+        regdata.setFlag(CPUFlags.C, src >= 0);
     }
 }
