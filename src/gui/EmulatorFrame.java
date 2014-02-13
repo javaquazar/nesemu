@@ -18,6 +18,7 @@ public class EmulatorFrame extends JFrame {
     
     private JPanel panel;
     private BufferedImage image;
+    private int scale = 2;
     
     private static class JoypadSwitch {
         public NESJoypad joypad;
@@ -36,14 +37,14 @@ public class EmulatorFrame extends JFrame {
             @Override
             public void paintComponent(Graphics g) {
                 // 0x00RRGGBB
-                g.drawImage(image, 0, 0, null);
+                g.drawImage(image, 0, 0, 256*scale, 240*scale, null);
             }
         };
         
         this.setContentPane(panel);
         
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        this.setSize(256*2, 240*2);
+        this.setSize(256*scale, 240*scale);
         this.addKeyListener(new KeyListener() {
             @Override
             public void keyTyped(KeyEvent arg0) {
@@ -70,7 +71,7 @@ public class EmulatorFrame extends JFrame {
             }
         });
         
-        panel.setPreferredSize(new Dimension(256, 240));
+        panel.setPreferredSize(new Dimension(256*scale, 240*scale));
         this.pack();
     }
     
