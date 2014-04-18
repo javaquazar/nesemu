@@ -2,6 +2,7 @@ package gui;
 
 import java.io.FileInputStream;
 
+import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
 import nes.GameRunnable;

@@ -1,8 +1,0 @@
-From the hcm-6502 (verilog) project. Load at and reset to 0xf000 and set IRQ vector to 0xf5a4.
-
-Source of the test suite:
-https://code.google.com/p/hmc-6502/source/browse/trunk/emu/testvectors/AllSuiteA.asm
-
-Which in turn was found on:
-http://www.6502.org/tools/emu/
-
