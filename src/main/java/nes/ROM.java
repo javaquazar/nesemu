@@ -1,8 +1,9 @@
 package nes;
 
-import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
+
+import org.apache.commons.io.IOUtils;
 
 import machine6502.Memory;
 
@@ -22,6 +23,13 @@ public class ROM {
         byte[] header = new byte[0x10];
         input.read(header);
         
+        boolean validMagic = header[0] == 'N' && header[1] == 'E' &&
+        		             header[2] == 'S' && header[3] == 0x1A;
+        
+        if (!validMagic) {
+        	throw new IOException("Provided ROM is not a valid NES ROM.");
+        }
+        
         // TODO - other verification
         prgCount = header[4];
         chrCount = header[5];
@@ -30,8 +38,9 @@ public class ROM {
         int romDataSize = prgCount*PRG_SIZE + chrCount*CHR_SIZE;
         
         romData = new byte[romDataSize];
-        if (input.read(romData) != romDataSize) {
-            throw new EOFException();
+        final int readSize = IOUtils.read(input, romData, 0, romDataSize);
+        if (readSize < romDataSize) {
+            throw new IOException("ROM file size (" + readSize + ") is smaller than required (" + romDataSize + ")");
         }
         
         romMem = new memory.ByteConstant(romData);

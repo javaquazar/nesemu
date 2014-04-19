@@ -1,7 +1,15 @@
 package nes;
 
+import java.io.DataInputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Enumeration;
+import java.util.Locale;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
+import java.util.zip.ZipInputStream;
 
 import nes.mappers.INESMapperList;
 import nes.mappers.Mapper;
@@ -36,12 +44,46 @@ public class GameRunnable implements Runnable {
     private nes.ROM rom;
     private UIUpdate ui;
     
-    public GameRunnable(InputStream input, UIUpdate ui) throws IOException {
+    private GameRunnable(InputStream input, UIUpdate ui) throws IOException {
         this.rom = new nes.ROM(input);
         this.ui = ui;
     }
+    
+    public static GameRunnable fromNES(InputStream input, UIUpdate ui) throws IOException {
+    	return new GameRunnable(input, ui);
+    }
+    
+    public static GameRunnable fromZipArchive(ZipFile file, UIUpdate ui) throws IOException {
+    	final Enumeration<? extends ZipEntry> entries;
+    	entries = file.entries();
+    	
+    	while (entries.hasMoreElements()) {
+    		final ZipEntry entry = entries.nextElement();
+    		if (entry.getName().toLowerCase(Locale.ENGLISH).endsWith(".nes")) {
+    			// found a ROM
+    			try (InputStream romInput = file.getInputStream(entry)) {
+    				return new GameRunnable(romInput, ui);
+    			}
+    		}
+    	}
+    	throw new IOException("No .nes ROM was found inside the .zip archive");
+    }
 
-    @Override
+    public static GameRunnable fromBestGuess(File file, UIUpdate ui) throws IOException {
+    	final boolean isZip;
+    	try (DataInputStream dis = new DataInputStream(new FileInputStream(file))) {
+    		// a quick hack to detect if it's a zip (without reading the extension)
+    		int magic = dis.readInt();
+    		isZip = magic == 0x504b0304;
+    	}
+    	if (isZip) {
+    		return GameRunnable.fromZipArchive(new ZipFile(file), ui);
+    	} else {
+    		return GameRunnable.fromNES(new FileInputStream(file), ui);
+    	}
+	}
+
+	@Override
     public void run() {
         boolean running = true;
         
