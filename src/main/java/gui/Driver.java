@@ -29,33 +29,33 @@ public class Driver {
         final GameRunnable nes;
         
         try {
-	    	if (args.length == 0) {
-	    		JFileChooser fc = new JFileChooser();
-	    		if (fc.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
-	    			File file = fc.getSelectedFile();
-	        		nes = GameRunnable.fromBestGuess(file, ui);
-	    		} else {
-	    			return;
-	    		}
-	    	} else {
-	    		nes = GameRunnable.fromBestGuess(new File(args[0]), ui);
-	    	}
-	    	
-	        SwingUtilities.invokeLater(new Runnable() {
-	            @Override
-	            public void run() {
-	                // linux-specific hack
-	                new RepeatingReleasedEventsFixer().install();
-	                
-	                frame.setVisible(true);
-	                new Thread(nes).start();
-	            }
-	        });
+            if (args.length == 0) {
+                JFileChooser fc = new JFileChooser();
+                if (fc.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+                    File file = fc.getSelectedFile();
+                    nes = GameRunnable.fromBestGuess(file, ui);
+                } else {
+                    return;
+                }
+            } else {
+                nes = GameRunnable.fromBestGuess(new File(args[0]), ui);
+            }
+            
+            SwingUtilities.invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    // linux-specific hack
+                    new RepeatingReleasedEventsFixer().install();
+                    
+                    frame.setVisible(true);
+                    new Thread(nes).start();
+                }
+            });
         } catch (IOException e) {
-        	e.printStackTrace();
-        	JOptionPane.showMessageDialog(null, e.getMessage());
-        	// Make sure Swing exits fully (I hate this)
-        	System.exit(0);
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(null, e.getMessage());
+            // Make sure Swing exits fully (I hate this)
+            System.exit(0);
         }
     }
 }

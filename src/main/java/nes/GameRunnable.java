@@ -50,40 +50,40 @@ public class GameRunnable implements Runnable {
     }
     
     public static GameRunnable fromNES(InputStream input, UIUpdate ui) throws IOException {
-    	return new GameRunnable(input, ui);
+        return new GameRunnable(input, ui);
     }
     
     public static GameRunnable fromZipArchive(ZipFile file, UIUpdate ui) throws IOException {
-    	final Enumeration<? extends ZipEntry> entries;
-    	entries = file.entries();
-    	
-    	while (entries.hasMoreElements()) {
-    		final ZipEntry entry = entries.nextElement();
-    		if (entry.getName().toLowerCase(Locale.ENGLISH).endsWith(".nes")) {
-    			// found a ROM
-    			try (InputStream romInput = file.getInputStream(entry)) {
-    				return new GameRunnable(romInput, ui);
-    			}
-    		}
-    	}
-    	throw new IOException("No .nes ROM was found inside the .zip archive");
+        final Enumeration<? extends ZipEntry> entries;
+        entries = file.entries();
+        
+        while (entries.hasMoreElements()) {
+            final ZipEntry entry = entries.nextElement();
+            if (entry.getName().toLowerCase(Locale.ENGLISH).endsWith(".nes")) {
+                // found a ROM
+                try (InputStream romInput = file.getInputStream(entry)) {
+                    return new GameRunnable(romInput, ui);
+                }
+            }
+        }
+        throw new IOException("No .nes ROM was found inside the .zip archive");
     }
 
     public static GameRunnable fromBestGuess(File file, UIUpdate ui) throws IOException {
-    	final boolean isZip;
-    	try (DataInputStream dis = new DataInputStream(new FileInputStream(file))) {
-    		// a quick hack to detect if it's a zip (without reading the extension)
-    		int magic = dis.readInt();
-    		isZip = magic == 0x504b0304;
-    	}
-    	if (isZip) {
-    		return GameRunnable.fromZipArchive(new ZipFile(file), ui);
-    	} else {
-    		return GameRunnable.fromNES(new FileInputStream(file), ui);
-    	}
-	}
+        final boolean isZip;
+        try (DataInputStream dis = new DataInputStream(new FileInputStream(file))) {
+            // a quick hack to detect if it's a zip (without reading the extension)
+            int magic = dis.readInt();
+            isZip = magic == 0x504b0304;
+        }
+        if (isZip) {
+            return GameRunnable.fromZipArchive(new ZipFile(file), ui);
+        } else {
+            return GameRunnable.fromNES(new FileInputStream(file), ui);
+        }
+    }
 
-	@Override
+    @Override
     public void run() {
         boolean running = true;
         

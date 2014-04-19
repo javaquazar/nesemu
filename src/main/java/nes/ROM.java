@@ -24,10 +24,10 @@ public class ROM {
         input.read(header);
         
         boolean validMagic = header[0] == 'N' && header[1] == 'E' &&
-        		             header[2] == 'S' && header[3] == 0x1A;
+                             header[2] == 'S' && header[3] == 0x1A;
         
         if (!validMagic) {
-        	throw new IOException("Provided ROM is not a valid NES ROM.");
+            throw new IOException("Provided ROM is not a valid NES ROM.");
         }
         
         // TODO - other verification
