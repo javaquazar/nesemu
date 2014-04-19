@@ -18,20 +18,20 @@ instructions in particular.
 Am I to do this again, it would be in C or another language with deterministic
 execution like rust.
 
-## What's missing
+### What's missing
 * Audio
 * Configurability
 * Mappers other than NROM
 * Much more
 
-## Known games that work
+### Known games that work
 * Super Mario Bros
 * Donkey Kong 1-3
 * Balloon Fight
 * Some MMC1 games, but with broken character sets (Megaman II, The Legend of Zelda)
 * No game with a mapper other than NROM (a lot)
 
-## Known games that don't work
+### Known games that don't work
 * Just about everything else
 
 ## Packages
