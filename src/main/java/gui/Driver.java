@@ -54,6 +54,8 @@ public class Driver {
         } catch (IOException e) {
         	e.printStackTrace();
         	JOptionPane.showMessageDialog(null, e.getMessage());
+        	// Make sure Swing exits fully (I hate this)
+        	System.exit(0);
         }
     }
 }
