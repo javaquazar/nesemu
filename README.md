@@ -3,17 +3,36 @@ This is a simple, no-frills NES emulator that I created for learning purposes
 in two weeks.
 It was during a low-load period at school and because I was bored.
 
+This emulator is written by Dan Spencer. No code was borrowed except for some
+hardcoded palette tables from Mednafen.
+
 It's buggy and missing a lot of functionality, and I don't actually recommend
 using this. Have a look at FCEUX and Nestopia, which are vastly superior.
 
 Because writing emulators in Java is _insane_, I naturally gave it a shot.
 The code is fairly modular and clean in comparison to some other emulators
-out there. Performance shortcuts were sacrificed to obtain cleaner code, but
-for Java it's still pretty fast. Lots of indirection was used with the CPU
+out there. Performance optimizations were sacrificed to obtain cleaner code, but
+for Java it's still okay. Lots of indirection was used with the CPU
 instructions in particular.
 
 Am I to do this again, it would be in C or another language with deterministic
 execution like rust.
+
+## What's missing
+* Audio
+* Configurability
+* Mappers other than NROM
+* Much more
+
+## Known games that work
+* Super Mario Bros
+* Donkey Kong 1-3
+* Balloon Fight
+* Some MMC1 games, but with broken character sets (Megaman II, The Legend of Zelda)
+* No game with a mapper other than NROM (a lot)
+
+## Known games that don't work
+* Just about everything else
 
 ## Packages
 ### gui
