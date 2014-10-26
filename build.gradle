@@ -5,6 +5,16 @@ sourceCompatibility = 1.7
 
 mainClassName = "gui.Driver"
 
+jar {
+    manifest.attributes("Main-Class": mainClassName)
+}
+
+task fatJar(type: Jar) {
+    baseName = project.name + '-all'
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    with jar
+}
+
 repositories {
     mavenCentral()
 }
