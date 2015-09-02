@@ -1,4 +1,7 @@
 # nesemu
+
+![Screenshot](screenshots/1.png)
+
 This is a simple, no-frills NES emulator that I created for learning purposes
 in two weeks.
 It was during a low-load period at school and because I was bored.
